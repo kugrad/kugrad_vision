@@ -121,8 +121,10 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  # include
+  include
   ${catkin_INCLUDE_DIRS}
+
+  ${OpenCV_INCLUDE_DIR}
 )
 
 ## Declare a C++ library
@@ -144,6 +146,13 @@ add_executable(cam_calrec
   src/cam_calrec/StereoCalib.cpp
 )
 
+add_executable(disparity
+  src/disparity.cpp
+  src/disparity/ReadStereoFS.cpp
+  src/disparity/DispMap.cpp
+  src/disparity/CamConfig.cpp
+)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -154,10 +163,15 @@ add_executable(cam_calrec
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-target_include_directories(cam_calrec PRIVATE
-  include/cam_calrec
-  ${OpenCV_INCLUDE_DIR}
-)
+# target_include_directories(cam_calrec PRIVATE
+#   include/cam_calrec
+#   ${OpenCV_INCLUDE_DIR}
+# )
+
+# target_include_directories(disparity PRIVATE
+#   include/disparity
+#   ${OpenCV_INCLUDE_DIR}
+# )
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(cam_calrec PRIVATE
@@ -169,8 +183,21 @@ target_link_libraries(cam_calrec PRIVATE
   PkgConfig::fmt
 )
 
+target_link_libraries(disparity PRIVATE
+  ${catkin_LIBRARIES}
+
+  ${OpenCV_LIBS}
+  PkgConfig::yaml_cpp
+  PkgConfig::jsoncpp
+  PkgConfig::fmt
+)
+
 target_compile_definitions(cam_calrec PRIVATE 
-    "CONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\""
+  "CONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\""
+)
+
+target_compile_definitions(disparity PRIVATE 
+  "CONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\""
 )
 
 

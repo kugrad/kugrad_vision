@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "CalibConfig.h"
-#include "StereoCalib.h"
+#include "cam_calrec/CalibConfig.h"
+#include "cam_calrec/StereoCalib.h"
 
 int main(int argc, char* argv[]){
 
-    CalibConfig config(CONFIG_DIR_PATH "configuration.json");
+    CalibConfig config(CONFIG_DIR_PATH "cam_configuration.json");
 
     StereoCalib s_calib(
         config.leftCameraFdIdx(),
