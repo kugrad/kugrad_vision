@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
      * 
     */
     ros::NodeHandle nh;
-    ros::Publisher disparity_map_pub = nh.advertise<std::string>("disparity_map", 1000);
+    ros::Publisher disparity_map_pub = nh.advertise<std_msgs::String>("disparity_map", 1000);
     ros::Rate fps_rate(config_cam.camFps()); // 30 fps => 30hz
 
     while (ros::ok()) {
