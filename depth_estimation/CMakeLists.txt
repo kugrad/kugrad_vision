@@ -140,17 +140,19 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(cam_calrec
+add_executable(camCalrec_node
   src/cam_calrec.cpp
-  src/cam_calrec/CalibConfig.cpp
+
+  src/cam_calrec/CamConfig.cpp
   src/cam_calrec/StereoCalib.cpp
 )
 
-add_executable(disparity
+add_executable(disparity_node
   src/disparity.cpp
+
+  src/cam_calrec/CamConfig.cpp
   src/disparity/ReadStereoFS.cpp
   src/disparity/DispMap.cpp
-  src/disparity/CamConfig.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -174,7 +176,7 @@ add_executable(disparity
 # )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(cam_calrec PRIVATE
+target_link_libraries(camCalrec_node PRIVATE
   ${catkin_LIBRARIES}
 
   ${OpenCV_LIBS}
@@ -183,7 +185,7 @@ target_link_libraries(cam_calrec PRIVATE
   PkgConfig::fmt
 )
 
-target_link_libraries(disparity PRIVATE
+target_link_libraries(disparity_node PRIVATE
   ${catkin_LIBRARIES}
 
   ${OpenCV_LIBS}
@@ -192,11 +194,11 @@ target_link_libraries(disparity PRIVATE
   PkgConfig::fmt
 )
 
-target_compile_definitions(cam_calrec PRIVATE 
+target_compile_definitions(camCalrec_node PRIVATE 
   "CONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\""
 )
 
-target_compile_definitions(disparity PRIVATE 
+target_compile_definitions(disparity_node PRIVATE 
   "CONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\""
 )
 

@@ -1,11 +1,21 @@
-#include "disparity/ReadStereoFS.h"
-
 #include "ros/ros.h"
 #include "std_msgs/String.h"
+
+#include "disparity/ReadStereoFS.h"
+#include "disparity/DispMap.h"
+#include "cam_calrec/CamConfig.h"
 
 int main(int argc, char* argv[]) {
 
     ros::init(argc, argv, "disparity_map");
+
+    /**
+     * @brief   disparity map initialization
+     * 
+     */
+    ReadStereoFS config_fs(CONFIG_DIR_PATH "caminfo_storage.yaml");
+    CamConfig config_cam(CONFIG_DIR_PATH "cam_configuration.json");
+    DispMap process(config_cam, config_fs);
 
     /**
      * #brief   ros initialization for publisher
@@ -13,21 +23,16 @@ int main(int argc, char* argv[]) {
     */
     ros::NodeHandle nh;
     ros::Publisher disparity_map_pub = nh.advertise<std::string>("disparity_map", 1000);
-    ros::Rate fps_rate(30); // 30 fps => 30hz
-
-    /**
-     * @brief   disparity map initialization
-     * 
-     */
-    ReadStereoFS config_fs(CONFIG_DIR_PATH "caminfo_storage.yaml");
-
-
+    ros::Rate fps_rate(config_cam.camFps()); // 30 fps => 30hz
 
     while (ros::ok()) {
         std_msgs::String disparity_map_bin;
 
         /* ---------- START make disparity map process ---------- */
 
+        process.readImageFromStream();
+
+        // TODO process disparity map 
 
 
         /* ----------  END  make disparity map process ---------- */
