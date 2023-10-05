@@ -1,4 +1,4 @@
-#include "cam_calrec/CamConfig.h"
+#include "stream_image_communication/CamConfig.h"
 #include "utils.h"
 
 #include <fmt/core.h>
@@ -31,15 +31,9 @@ CamConfig::CamConfig(std::string config_path) {
         alert::critic_runtime_error("resolution is not a member of configuration.json.");
     }
 
-    if (config_root.isMember("chessboard")) {
-        chessboard = config_root["chessboard"];
-    } else {
-        alert::critic_runtime_error("chessboard is not a member of configuration.json.");
-    }
+    json_file.close();
 
 }
-
-CamConfig::~CamConfig() { /* ! Currently do  nothing */}
 
 const std::string CamConfig::leftCameraFdIdx() const {
 
@@ -57,33 +51,6 @@ const std::string CamConfig::rightCameraFdIdx() const {
     }
 
     return camera_index["right"].asString();
-}
-
-const int CamConfig::numHorizontalCorner() const {
-
-    if (!chessboard.isMember("num_hor_corner")) {
-        alert::critic_runtime_error("num_hor_corner is not a member of \"chessboard\"");
-    }
-
-    return chessboard["num_hor_corner"].asInt();
-}
-
-const int CamConfig::numVerticalCorner() const {
-
-    if (!chessboard.isMember("num_ver_corner")) {
-        alert::critic_runtime_error("num_ver_corner is not a member of \"chessboard\"");
-    }
-
-    return chessboard["num_ver_corner"].asInt();
-}
-
-const int CamConfig::chessboardSquareLength() const {
-
-    if (!chessboard.isMember("square_length_mm")) {
-        alert::critic_runtime_error("square_length_mm is not a member of \"chessboard\"");
-    }
-
-    return chessboard["square_length_mm"].asInt();
 }
 
 const uint32_t CamConfig::camWidth() const {

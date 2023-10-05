@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  stream_image_communication 
 )
 
 ## System dependencies are found with CMake's conventions
@@ -132,6 +133,8 @@ include_directories(
 #   src/${PROJECT_NAME}/disparity_estimation.cpp
 # )
 
+add_definitions(-DCONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\")
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -143,14 +146,14 @@ include_directories(
 add_executable(camCalrec_node
   src/cam_calrec.cpp
 
-  src/cam_calrec/CamConfig.cpp
+  src/cam_calrec/CalibConfig.cpp
   src/cam_calrec/StereoCalib.cpp
 )
 
 add_executable(disparity_node
   src/disparity.cpp
 
-  src/cam_calrec/CamConfig.cpp
+  # src/cam_calrec/Calib.cpp
   src/disparity/ReadStereoFS.cpp
   src/disparity/DispMap.cpp
 )
@@ -193,15 +196,6 @@ target_link_libraries(disparity_node PRIVATE
   PkgConfig::jsoncpp
   PkgConfig::fmt
 )
-
-target_compile_definitions(camCalrec_node PRIVATE 
-  "CONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\""
-)
-
-target_compile_definitions(disparity_node PRIVATE 
-  "CONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\""
-)
-
 
 #############
 ## Install ##

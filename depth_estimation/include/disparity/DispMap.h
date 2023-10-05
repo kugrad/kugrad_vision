@@ -2,7 +2,7 @@
 #define __DISP_AMP_H__ 
 
 #include "disparity/ReadStereoFS.h"
-#include "cam_calrec/CamConfig.h"
+#include "cam_calrec/CalibConfig.h"
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/videoio.hpp>
@@ -10,7 +10,7 @@
 class DispMap {
 public:
     // init. setting value have to be constant value.
-    DispMap(const CamConfig& cam_config, const ReadStereoFS& config_fs);
+    DispMap(const CalibConfig& cam_config, const ReadStereoFS& config_fs);
     DispMap(
         const std::string& left_camera_fd_idx,
         const std::string& right_camera_fd_idx,

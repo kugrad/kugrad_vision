@@ -3,7 +3,9 @@
 
 #include "disparity/ReadStereoFS.h"
 #include "disparity/DispMap.h"
-#include "cam_calrec/CamConfig.h"
+#include "cam_calrec/CalibConfig.h"
+
+#include "stream_image_communication/Stereo_image_msg.h"
 
 int main(int argc, char* argv[]) {
 

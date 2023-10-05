@@ -15,9 +15,12 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS date_time REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(OpenCV REQUIRED)
+
+pkg_check_modules(jsoncpp REQUIRED IMPORTED_TARGET jsoncpp)
+pkg_check_modules(fmt REQUIRED IMPORTED_TARGET fmt)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -51,7 +54,7 @@ find_package(OpenCV REQUIRED)
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-	Stream_image.msg
+  Stereo_image_msg.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -117,14 +120,18 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
+
+  ${OpenCV_INCLUDE_DIR}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/stream_image_communication.cpp
 # )
+
+add_definitions(-DCONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\")
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -134,8 +141,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(image_cap_node
-  image_capture_node.cpp
+add_executable(stereo_stream_node
+  stereo_stream_node.cpp
+  src/CamConfig.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -149,9 +157,13 @@ add_executable(image_cap_node
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(stereo_stream_node
+  ${catkin_LIBRARIES}
+
+  ${OpenCV_LIBS}
+  PkgConfig::jsoncpp
+  PkgConfig::fmt
+)
 
 #############
 ## Install ##

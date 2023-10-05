@@ -8,7 +8,6 @@ class CamConfig {
 private:
     Json::Value config_root;
     Json::Value camera_index;
-    Json::Value chessboard;
     Json::Value resolution;
 
 public:
@@ -18,10 +17,6 @@ public:
 
     const std::string leftCameraFdIdx() const;
     const std::string rightCameraFdIdx() const;
-
-    const int numHorizontalCorner() const;
-    const int numVerticalCorner() const;
-    const int chessboardSquareLength() const;
 
     const uint32_t camWidth() const;
     const uint32_t camHeight() const;

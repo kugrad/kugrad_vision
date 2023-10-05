@@ -7,10 +7,5 @@
         "width": 640,
         "height": 480
     },
-    "fps": 30,
-    "chessboard": {
-        "num_hor_corner": 10,
-        "num_ver_corner": 7,
-        "square_length_mm": 25
-    }
+    "fps": 30
 }
