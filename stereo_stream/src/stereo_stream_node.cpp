@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 
         // release cam_config here
     }
-#endif
+#endif /* !TEST */
 
     /**
      * #brief   ros initialization for publisher
@@ -57,11 +57,17 @@ int main(int argc, char* argv[]) {
     cam_height = stream_l.get(cv::CAP_PROP_FRAME_HEIGHT);
     fps = stream_l.get(cv::CAP_PROP_FPS);
     fps = 30;
-
 #else
     VideoCapture stream_l(left_camera_fd, CAP_V4L2);
     VideoCapture stream_r(right_camera_fd, CAP_V4L2);
-#endif
+
+    stream_l.set(cv::CAP_PROP_FRAME_WIDTH, cam_width);
+    stream_l.set(cv::CAP_PROP_FRAME_HEIGHT, cam_height);
+    stream_l.set(cv::CAP_PROP_FPS, fps);
+    stream_r.set(cv::CAP_PROP_FRAME_WIDTH, cam_width);
+    stream_r.set(cv::CAP_PROP_FRAME_HEIGHT, cam_height);
+    stream_r.set(cv::CAP_PROP_FPS, fps);
+#endif /* TEST */
 
     if (!stream_l.isOpened() || !stream_r.isOpened()) {
         alert::critic_runtime_error("VideoCapture is not opened! left or right - image_cap_node");

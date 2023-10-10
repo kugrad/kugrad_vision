@@ -6,6 +6,12 @@
 
 #include <boost/bind.hpp>
 
+#include <opencv2/highgui/highgui.hpp>
+
+#define SHOW_IMAGE 1
+
+using namespace cv;
+
 DispProcess::DispProcess()
     : 
     imgTrans(nh),
@@ -28,6 +34,12 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
 
     left_image = cv_bridge::toCvShare(left_image_, left_image_->encoding)->image;
     right_image = cv_bridge::toCvShare(right_image_, right_image_->encoding)->image;
+
+#if SHOW_IMAGE
+    cv::imshow("left_image", left_image);
+    cv::imshow("right_image", right_image);
+    cv::waitKey(1);
+#endif /* SHOW_IMAGE */
 
     // TODO code process here
 
