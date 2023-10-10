@@ -11,7 +11,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  stream_image_communication 
+  image_transport
+  cv_bridge
+  message_filters
 )
 
 ## System dependencies are found with CMake's conventions
@@ -153,7 +155,7 @@ add_executable(camCalrec_node
 add_executable(disparity_node
   src/disparity.cpp
 
-  # src/cam_calrec/Calib.cpp
+  src/disparity/DispProcess.cpp
   src/disparity/ReadStereoFS.cpp
   src/disparity/DispMap.cpp
 )

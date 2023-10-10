@@ -12,7 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
-  message_generation
+  image_transport
+  cv_bridge
+  # message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -53,10 +55,10 @@ pkg_check_modules(fmt REQUIRED IMPORTED_TARGET fmt)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  stereo_img.msg
-)
+# add_message_files(
+#   FILES
+#   stereo_img.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -73,11 +75,11 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  sensor_msgs
-  std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   sensor_msgs
+#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -111,7 +113,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES stereo_stream
- CATKIN_DEPENDS message_runtime roscpp rospy sensor_msgs std_msgs
+ CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs image_transport cv_bridge
 #  DEPENDS system_lib
 )
 

@@ -1,17 +1,17 @@
-#include "ros/ros.h"
+#include <ros/ros.h>
+#include <image_transport/image_transport.h>
 
-// #include "stereo_stream/stere.h"
 #include "stereo_stream/CamConfig.h"
 #include "utils.h"
 
-#include <opencv2/videoio/videoio.hpp>
-#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <cv_bridge/cv_bridge.h>
 
-// #include <boost/date_time/posix_time/posix_time.hpp>
+#include <sstream>
+
+// #include <boost/date_time/posix_time/posix_time.pp>
 
 #define TEST 1
-
-using namespace cv;
 
 int main(int argc, char* argv[]) {
 
@@ -43,19 +43,20 @@ int main(int argc, char* argv[]) {
     */
     ros::NodeHandle nh;
 
-    // publisher stero image
-    // ros::Publisher stream_stereo =
-    //     nh.advertise<stream_image_communication::Stereo_image_msg>("stereo_image", 1000);
 
-    ros::Rate fps_rate(fps); // 30 fps => 30hz
+    // create publisher left right image publisher
+    image_transport::ImageTransport it(nh);
+    image_transport::Publisher left_img_pub = it.advertise("stereo/left_image", 10);
+    image_transport::Publisher right_img_pub = it.advertise("stereo/right_image", 10);
 
 #if TEST
-    VideoCapture stream_l(DATA_DIR_PATH "left.mp4");
-    VideoCapture stream_r(DATA_DIR_PATH "right.mp4");
+    cv::VideoCapture stream_l(DATA_DIR_PATH "left.mp4");
+    cv::VideoCapture stream_r(DATA_DIR_PATH "right.mp4");
 
-    cam_width = stream_l.get(CAP_PROP_FRAME_WIDTH);
-    cam_height = stream_l.get(CAP_PROP_FRAME_HEIGHT);
-    fps = stream_l.get(CAP_PROP_FPS);
+    cam_width = stream_l.get(cv::CAP_PROP_FRAME_WIDTH);
+    cam_height = stream_l.get(cv::CAP_PROP_FRAME_HEIGHT);
+    fps = stream_l.get(cv::CAP_PROP_FPS);
+    fps = 30;
 
 #else
     VideoCapture stream_l(left_camera_fd, CAP_V4L2);
@@ -68,48 +69,38 @@ int main(int argc, char* argv[]) {
 
     // boost::posix_time::ptime epoch(boost::gregorian::date(1970, 1, 1)); // The epoch time
 
-    Mat image_left;
-    Mat image_right;
+    sensor_msgs::ImagePtr left_msg;
+    sensor_msgs::ImagePtr right_msg;;
 
-    std::string encoding_type = ".jpg";
+    cv::Mat image_left;
+    cv::Mat image_right;
+
+    ros::Rate fps_rate(fps); // 30 fps => 30hz
 
     while (ros::ok()) {
 
         // stream_image_communication::Stereo_image_msg msg;
 
         // /* read image */
-        stream_l.read(image_left);
-        stream_r.read(image_right);
+        stream_l >> image_left;
+        stream_r >> image_right;
 
-        // msg.time_info = ros::Time::now();
-        // msg.width = cam_width;
-        // msg.height = cam_height;
-        // msg.encoding_type = encoding_type;
+        if (image_left.empty()) {
+            alert::critic_runtime_error("LEFT Image is not readed");
+        }
+        if (image_right.empty()) {
+            alert::critic_runtime_error("RIGHT Image is not readed");
+        }
 
-        // std::string l_img_str, r_img_str;
-        // l_img_str << image_left;
-        // r_img_str << image_right;
+        left_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_left).toImageMsg();
+        right_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_right).toImageMsg();
 
-
-        // std::vector<uint8_t> l_buffer, r_buffer;
-        // std::vector<uint8_t> l_buffer(l_img_str.begin(), l_img_str.end());
-        // std::vector<uint8_t> r_buffer(r_img_str.begin(), r_img_str.end());
-        // cv::imencode(encoding_type, image_left, l_buffer);
-        // cv::imencode(encoding_type, image_right, r_buffer);
-
-        // msg.left_image_string = l_buffer;
-        // msg.right_image_string = r_buffer;
+        left_img_pub.publish(left_msg);
+        right_img_pub.publish(right_msg);
 
         // auto now = boost::posix_time::microsec_clock::universal_time();
 
         // uint64_t cur_time_in_posix = (now - epoch).total_milliseconds();
-
-        // msg.left_image_string
-        // msg.left_image_string << image_left;
-        // msg.right_image_string << image_right;
-        // msg.time_info = cur_time_in_posix;
-
-        // stream_stereo.publish(msg);
 
         ros::spinOnce();
         fps_rate.sleep();

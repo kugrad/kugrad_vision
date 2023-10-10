@@ -2,15 +2,13 @@
 
 #include <iostream>
 
-#include "stream_image_communication/Stereo_image_msg.h"
-
 #include "cam_calrec/CalibConfig.h"
 #include "cam_calrec/StereoCalib.h"
 
-void stereoImage_cb(const stream_image_communication::Stereo_image_msg::ConstPtr& msg) {
-    // TODO callback method
+// void stereoImage_cb(const stream_image_communication::Stereo_image_msg::ConstPtr& msg) {
+//     // TODO callback method
 
-}
+// }
 
 int main(int argc, char* argv[]){
 
@@ -18,7 +16,7 @@ int main(int argc, char* argv[]){
 
     ros::NodeHandle nh;
 
-    ros::Subscriber stereo_image_sub = nh.subscribe("stereo_image", 1000, stereoImage_cb);
+    // ros::Subscriber stereo_image_sub = nh.subscribe("stereo_image", 1000, stereoImage_cb);
 
     ros::spin();
 
