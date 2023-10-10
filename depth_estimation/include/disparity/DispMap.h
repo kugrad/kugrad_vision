@@ -12,11 +12,6 @@ public:
     // init. setting value have to be constant value.
     DispMap(const CalibConfig& cam_config, const ReadStereoFS& config_fs);
     DispMap(
-        const std::string& left_camera_fd_idx,
-        const std::string& right_camera_fd_idx,
-        const uint32_t& camera_width,
-        const uint32_t& camera_height,
-        const uint8_t& camera_fps,
         const cv::Mat& cameraMat_left,
         const cv::Mat& distCoeff_left,
         const cv::Mat& rectificationMat_left,
@@ -28,16 +23,7 @@ public:
     );
     ~DispMap();
 
-    std::pair<cv::Mat, cv::Mat> readImageFromStream();
-
-
-
 private:
-    const std::string left_camera_fd;
-    const std::string right_camera_fd;
-    const uint32_t camera_width;
-    const uint32_t camera_height;
-    const uint8_t camera_fps;
 
     const cv::Mat cam_l;
     const cv::Mat cam_r;
@@ -52,9 +38,6 @@ private:
     std::pair<cv::Mat, cv::Mat> left_stereo_map;
     // undistort map for right camera
     std::pair<cv::Mat, cv::Mat> right_stereo_map;
-
-    cv::VideoCapture stream_l;
-    cv::VideoCapture stream_r;
 
     cv::Mat image_left, image_right;
 
