@@ -2,6 +2,7 @@
 #include "utils.h"
 
 #include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 using namespace cv;
 
@@ -72,4 +73,23 @@ DispMap::DispMap(
 
 }
 
-DispMap::~DispMap() {  }
+DispMap::~DispMap() { 
+    left_stereo_map.first.release();
+    left_stereo_map.second.release();
+    right_stereo_map.first.release();
+    right_stereo_map.second.release();
+}
+
+void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_) {
+
+    cv::Mat flat_img_left, flat_img_right;
+    remap(left_img_, flat_img_left, left_stereo_map.first, left_stereo_map.second, INTER_LINEAR, BORDER_CONSTANT);
+    remap(right_img_, flat_img_right, right_stereo_map.first, right_stereo_map.second, INTER_LINEAR, BORDER_CONSTANT);
+
+    cvtColor(flat_img_left, gray_img_l, COLOR_RGB2GRAY);
+    cvtColor(flat_img_right, gray_img_r, COLOR_RGB2GRAY);
+
+
+
+
+}

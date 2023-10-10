@@ -22,6 +22,7 @@ public:
         const cv::Mat& projectionMat_right
     );
     ~DispMap();
+    void makingDisparityProcess(const cv::Mat& left_img_, const cv::Mat& right_img_);
 
 private:
 
@@ -39,7 +40,7 @@ private:
     // undistort map for right camera
     std::pair<cv::Mat, cv::Mat> right_stereo_map;
 
-    cv::Mat image_left, image_right;
+    cv::Mat gray_img_l, gray_img_r; // store undistored images
 
 };
 

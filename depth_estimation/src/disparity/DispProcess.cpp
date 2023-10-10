@@ -1,6 +1,4 @@
 #include "disparity/DispProcess.h"
-#include "disparity/ReadStereoFS.h"
-#include "disparity/DispMap.h"
 
 #include <cv_bridge/cv_bridge.h>
 
@@ -20,7 +18,10 @@ DispProcess::DispProcess()
     left_image_sub(nh, "stereo/left_image", 1),
     right_image_sub(nh, "stereo/right_image" 1),
 #endif /* USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER */
-    sync( SyncPolicy( 10 ), left_image_sub, right_image_sub )
+    sync( SyncPolicy( 10 ), left_image_sub, right_image_sub ),
+    config_fs(ReadStereoFS(CONFIG_DIR_PATH "caminfo_sotrage.yaml")),
+    config_calrec(CalibConfig(CONFIG_DIR_PATH "calib_recti_config.json")),
+    disp(DispMap(config_calrec, config_fs))
 {
     /*
        TODO disparity map initialization here
@@ -34,11 +35,16 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
     right_image = cv_bridge::toCvShare(right_image_, right_image_->encoding)->image;
 
 #if SHOW_IMAGE
-    cv::imshow("left_image", left_image);
-    cv::imshow("right_image", right_image);
-    cv::waitKey(1);
+    imshow("left_image", left_image);
+    imshow("right_image", right_image);
 #endif /* SHOW_IMAGE */
 
-    // TODO code process here
+    // * ---------------------- START Code related with disparity map START ---------------------- *
+    disp.makingDisparityProcess(left_image, right_image);
 
+    // * ----------------------  END  Code related with disparity map  END  ---------------------- *
+
+#if SHOW_IMAGE
+    waitKey(1); // To display imshow
+#endif
 }
