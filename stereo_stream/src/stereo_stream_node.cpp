@@ -1,17 +1,16 @@
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
 
-#include "stereo_stream/CamConfig.h"
 #include "utils.h"
 
 #include <opencv2/highgui/highgui.hpp>
 #include <cv_bridge/cv_bridge.h>
 
-#include <sstream>
-
 // #include <boost/date_time/posix_time/posix_time.pp>
 
-#define TEST 1
+#if TEST
+#include "stereo_stream/CamConfig.h"
+#endif /* TEST */
 
 int main(int argc, char* argv[]) {
 

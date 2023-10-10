@@ -8,8 +8,6 @@
 
 #include <opencv2/highgui/highgui.hpp>
 
-#define SHOW_IMAGE 1
-
 using namespace cv;
 
 DispProcess::DispProcess()

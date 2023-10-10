@@ -5,9 +5,6 @@
 #include <image_transport/image_transport.h>
 #include <message_filters/synchronizer.h>
 
-#define USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER 1
-#define EXACT_TIME_SYNC 1
-
 #if USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER
 #include <image_transport/subscriber_filter.h>
 #else

@@ -135,7 +135,12 @@ include_directories(
 #   src/${PROJECT_NAME}/disparity_estimation.cpp
 # )
 
-add_definitions(-DCONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\")
+add_definitions(
+  -DCONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\"
+  -DUSE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER=1
+  -DEXACT_TIME_SYNC=1
+  -DSHOW_IMAGE=1 # * show images for debugging ex) left or right and so on.
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

@@ -138,6 +138,7 @@ include_directories(
 add_definitions(
   -DCONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\"
   -DDATA_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/data/\"
+  -DTEST=1 # * Use mp4 files in data directory for test
 )
 
 ## Add cmake target dependencies of the library
