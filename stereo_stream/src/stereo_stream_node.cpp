@@ -52,10 +52,20 @@ int main(int argc, char* argv[]) {
     cv::VideoCapture stream_l(DATA_DIR_PATH "left.mp4");
     cv::VideoCapture stream_r(DATA_DIR_PATH "right.mp4");
 
-    cam_width = stream_l.get(cv::CAP_PROP_FRAME_WIDTH);
-    cam_height = stream_l.get(cv::CAP_PROP_FRAME_HEIGHT);
-    fps = stream_l.get(cv::CAP_PROP_FPS);
+    // cam_width = stream_l.get(cv::CAP_PROP_FRAME_WIDTH);
+    // cam_height = stream_l.get(cv::CAP_PROP_FRAME_HEIGHT);
+    // fps = stream_l.get(cv::CAP_PROP_FPS);
+    // fps = 30;
+    cam_width = 640;
+    cam_height = 480;
     fps = 30;
+
+    stream_l.set(cv::CAP_PROP_FRAME_WIDTH, cam_width);
+    stream_l.set(cv::CAP_PROP_FRAME_HEIGHT, cam_height);
+    stream_l.set(cv::CAP_PROP_FPS, fps);
+    stream_r.set(cv::CAP_PROP_FRAME_WIDTH, cam_width);
+    stream_r.set(cv::CAP_PROP_FRAME_HEIGHT, cam_height);
+    stream_r.set(cv::CAP_PROP_FPS, fps);
 #else
     VideoCapture stream_l(left_camera_fd, CAP_V4L2);
     VideoCapture stream_r(right_camera_fd, CAP_V4L2);

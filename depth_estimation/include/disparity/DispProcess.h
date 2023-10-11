@@ -22,7 +22,6 @@
 
 #include "disparity/DispMap.h"
 #include "disparity/ReadStereoFS.h"
-#include "cam_calrec/CalibConfig.h"
 
 class DispProcess {
 
@@ -58,9 +57,10 @@ private:
     cv::Mat left_image; // left image
     cv::Mat right_image; // right image
 
-    CalibConfig config_calrec;
-    ReadStereoFS config_fs;
-    DispMap disp;
+    // ReadStereoFS* config_fs;
+    // DispMap* disp;
+    std::shared_ptr<ReadStereoFS> config_fs;
+    std::shared_ptr<DispMap> disp;
 
 };
 

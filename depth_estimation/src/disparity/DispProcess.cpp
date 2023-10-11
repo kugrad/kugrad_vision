@@ -18,14 +18,10 @@ DispProcess::DispProcess()
     left_image_sub(nh, "stereo/left_image", 1),
     right_image_sub(nh, "stereo/right_image" 1),
 #endif /* USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER */
-    sync( SyncPolicy( 10 ), left_image_sub, right_image_sub ),
-    config_fs(ReadStereoFS(CONFIG_DIR_PATH "caminfo_sotrage.yaml")),
-    config_calrec(CalibConfig(CONFIG_DIR_PATH "calib_recti_config.json")),
-    disp(DispMap(config_calrec, config_fs))
+    sync( SyncPolicy( 1 ), left_image_sub, right_image_sub ),
+    config_fs(std::make_shared<ReadStereoFS>(CONFIG_DIR_PATH "caminfo_storage.yaml")),
+    disp(std::make_shared<DispMap>(config_fs.get()))
 {
-    /*
-       TODO disparity map initialization here
-     */
     sync.registerCallback( boost::bind(&DispProcess::processCallback, this, _1, _2) );
 }
 
@@ -34,13 +30,24 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
     left_image = cv_bridge::toCvShare(left_image_, left_image_->encoding)->image;
     right_image = cv_bridge::toCvShare(right_image_, right_image_->encoding)->image;
 
+    static bool undistored_ = false;
+    if (!undistored_) {
+        disp->initUndistored(left_image.size(), right_image.size());
+    }
+
 #if SHOW_IMAGE
     imshow("left_image", left_image);
     imshow("right_image", right_image);
 #endif /* SHOW_IMAGE */
 
     // * ---------------------- START Code related with disparity map START ---------------------- *
-    disp.makingDisparityProcess(left_image, right_image);
+    disp->makingDisparityProcess(left_image, right_image);
+
+    Mat disp_map = disp->disparityImage();
+
+#if SHOW_IMAGE
+    imshow("disparity map", disp_map);
+#endif /* SHOW_IMAGE */
 
     // * ----------------------  END  Code related with disparity map  END  ---------------------- *
 
