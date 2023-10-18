@@ -140,7 +140,7 @@ add_definitions(
   -DUSE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER=1
   -DEXACT_TIME_SYNC=1
   -DSHOW_IMAGE=1 # * show images for debugging ex) left or right and so on.
-  -DSTEREO_SGBM=0
+  -DSTEREO_SGBM=1
 )
 
 ## Add cmake target dependencies of the library
