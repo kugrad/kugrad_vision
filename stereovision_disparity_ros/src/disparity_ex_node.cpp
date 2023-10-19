@@ -1,8 +1,8 @@
 #include <ros/ros.h>
 
 #include <iostream>
-#include <chrono>
-#include <thread>
+// #include <chrono>
+// #include <thread>
 
 #include <chrono>
 #include <thread>
@@ -26,10 +26,10 @@ int main(int argc, char* argv[]){
 
     core.undistortInfoMat();
 
-    // Initialize a timer
-    auto startTime = std::chrono::high_resolution_clock::now();
+    ros::Time::init();
+    ros::Rate loop_rate(30);
 
-    while (true) {
+    while (ros::ok()) {
 
         core.takePicture();
         core.undistortImage();
@@ -37,23 +37,12 @@ int main(int argc, char* argv[]){
         core.makeDisparityImages();
         core.filterStereoImage();
         core.showResultImage();
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsedTime = currentTime - startTime;
-
-        if (elapsedTime >= timeInterval) {
-            // Reset the timer
-            startTime = std::chrono::high_resolution_clock::now();
-
-            // Your code to be executed at 30Hz here
-            // std::cout << "Running at 30Hz\n";
-        }
-
-        // Sleep for a short duration to avoid busy-waiting
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        core.calculate3DCoordinate();
 
         if (cv::waitKey(1) == 27)
             break;
+
+        loop_rate.sleep();
         
         ros::spinOnce();
     }

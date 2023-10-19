@@ -1,9 +1,12 @@
 #include "CamModify.h"
 
+#include <pcl_ros/point_cloud.h> // ros point cloud libraries
+
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
 
 using namespace cv;
 
@@ -178,6 +181,7 @@ void CamModify::showResultImage() {
 
 cv::Mat CamModify::calculate3DCoordinate() {
     reprojectImageTo3D(filtered_img, point_cloud, config_storage.disparity_Q(), true);
+    imshow("point", point_cloud);
 
     return point_cloud;
 }
