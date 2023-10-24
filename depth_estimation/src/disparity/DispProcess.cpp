@@ -19,7 +19,7 @@ DispProcess::DispProcess()
     right_image_sub(nh, "stereo/right_image" 1),
 #endif /* USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER */
     sync( SyncPolicy( 1 ), left_image_sub, right_image_sub ),
-    config_fs(std::make_shared<ReadStereoFS>(CONFIG_DIR_PATH "caminfo_storage.yaml")),
+    config_fs(std::make_shared<ReadStereoFS>(CONFIG_DIR_PATH "calib_storage.yaml")),
     disp(std::make_shared<DispMap>(config_fs.get()))
 {
     sync.registerCallback( boost::bind(&DispProcess::processCallback, this, _1, _2) );

@@ -9,13 +9,15 @@ int main(int argc, char* argv[]){
 
     ros::NodeHandle nh;
 
-    CalibConfig config(CONFIG_DIR_PATH "cam_recti_config.json");
+    CalibConfig config(CONFIG_DIR_PATH "calib_recti_config.json");
 
     StereoCalib s_calib(
         config.numHorizontalCorner(),
         config.numVerticalCorner(),
         config.chessboardSquareLength()
     );
+
+    // s_calib.startStereoCalibNRect();
 
     ros::spin();
 

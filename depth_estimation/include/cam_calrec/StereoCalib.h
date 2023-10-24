@@ -70,10 +70,14 @@ private:
     cv::Mat left_image; // left image
     cv::Mat right_image; // right image
 
+    std::vector<cv::Point3f> objp;
+
+    std::mutex l_image_mx;
+    std::mutex r_image_mx;
+
     int hor_corner_n;  //Horizontal corners
     int ver_corner_n; //Vertical corners
     float square_size;
-
 
     // calibration parameter both intrinsic and extrinsic
     vector<vector<Point3f>> object_points; //Represents the 3D corners actual location
