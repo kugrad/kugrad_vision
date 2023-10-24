@@ -53,11 +53,12 @@ private:
     cv::Ptr<cv::StereoSGBM> stereo;
 
     // Stereo SBGM parameter value
+    constexpr static int smoothing_factor = 4; // use it for P1 and P2
     constexpr static int window_block_size = 1;
     constexpr static int min_disparity = 0;
     constexpr static int num_disparity = 16 * 5; 
-    constexpr static int P1 = 8 * window_block_size * window_block_size * 4;
-    constexpr static int P2 = 32 * window_block_size * window_block_size * 4;
+    constexpr static int P1 = 8 * window_block_size * window_block_size * smoothing_factor;
+    constexpr static int P2 = 32 * window_block_size * window_block_size * smoothing_factor;
     // constexpr static int disp12MaxDiff = 5;
     constexpr static int disp12MaxDiff = 0;
     constexpr static int preFilterCap = 25;

@@ -116,12 +116,10 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
     // cv::Canny(gaus_r, canny_r, 50, 150);
     
     // ------- disparity map
-    Mat disp_l;
+    Mat disp_l, disp_r;
     stereo->compute(gaus_l, gaus_r, disp_l);
-    // stereo_compute_l.convertTo(disp_l, CV_16S);
-
-    Mat disp_r;
     stereoR->compute(gaus_r, gaus_l, disp_r);
+    // stereo_compute_l.convertTo(disp_l, CV_16S);
     // stereo_compute_r.convertTo(disp_r, CV_16S);
 
     // ------- filter stereo
@@ -137,8 +135,8 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
 }
 
 Mat DispMap::disparityImage() const {
-    Mat color_filtered;
 
+    Mat color_filtered;
     cv::applyColorMap(disparity_filtered_image, color_filtered, cv::COLORMAP_OCEAN);
 
     return color_filtered;
