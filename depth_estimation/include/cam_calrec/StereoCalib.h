@@ -1,6 +1,21 @@
 #ifndef __STEREO_CALIB_H__
 #define __STEREO_CALIB_H__
 
+#include <ros/ros.h>
+
+#if USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER
+#include <image_transport/subscriber_filter.h>
+#else
+#include <sensor_msgs/Image.h>
+#include <message_filters/subscriber.h>
+#endif /* USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER */
+
+#if EXACT_TIME_SYNC
+#include <message_filters/sync_policies/exact_time.h>
+#else
+#include <message_filters/sync_policies/approximate_time.h>
+#endif /* EXACT_TIME_SYNC */
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -8,8 +23,6 @@
 
 #include <iostream>
 #include <stdio.h>
-
-#define FPS 30 // 30 fps
 
 using namespace cv;
 using namespace std;
@@ -19,20 +32,43 @@ class StereoCalib {
 public:
     // StereoCalib(cv::Mat& actualOne, cv::Mat& actualTwo);
     StereoCalib(
-        std::string left_cam_path,
-        std::string right_cam_path,
+        // std::string left_cam_path,
+        // std::string right_cam_path,
         int chessboard_horizontal_corner_num,
         int chessboard_vertical_corner_num,
         int chessboard_square_size
     );
     ~StereoCalib();
+
+    void stereoCalibrationProcessCallback(
+        const sensor_msgs::ImageConstPtr& left_image_,
+        const sensor_msgs::ImageConstPtr& right_iamge_
+    );
     
     void startStereoCalibNRect();
     
 private:
 
-    std::string left_cam_path;
-    std::string right_cam_path;
+    ros::NodeHandle nh;
+    image_transport::ImageTransport imgTrans;
+
+#if USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER
+    typedef image_transport::SubscriberFilter ImageSubscriber;
+#else
+    typedef message_filters::Subscriber< sensor_msgs::Image > ImageSubscriber;
+#endif /* USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER */
+    ImageSubscriber left_image_sub;
+    ImageSubscriber right_image_sub;
+
+#if EXACT_TIME_SYNC
+    typedef message_filters::sync_policies::ExactTime<sensor_msgs::Image, sensor_msgs::Image> SyncPolicy;
+#else
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> SyncPolicy;
+#endif /* EXACT_TIME_SYNC */
+    message_filters::Synchronizer<SyncPolicy> sync;
+
+    cv::Mat left_image; // left image
+    cv::Mat right_image; // right image
 
     int hor_corner_n;  //Horizontal corners
     int ver_corner_n; //Vertical corners

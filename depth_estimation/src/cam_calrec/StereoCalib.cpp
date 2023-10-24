@@ -3,6 +3,9 @@
 
 #include <opencv2/calib3d/calib3d_c.h>
 
+#include <cv_bridge/cv_bridge.h>
+#include <boost/bind.hpp>
+
 #include <fmt/core.h>
 #include <fmt/color.h>
 
@@ -11,32 +14,26 @@
 
 using namespace std::chrono;
 
-// StereoCalib::StereoCalib(Mat& actualOne, Mat& actualTwo)
-//     : m_imageOne(actualOne), m_imageTwo(actualTwo)
-// {  }
 StereoCalib::StereoCalib(
-#if __linux__
-    std::string left_cam_path,
-    std::string right_cam_path,
-#elif __APPLE__
-    int left_cam_param,
-    int right_cam_param,
-#endif
     int chessboard_horizontal_corner_num,
     int chessboard_vertical_corner_num,
     int chessboard_square_size
 ) :
-#if __linux__
-left_cam_path(left_cam_path),
-right_cam_path(right_cam_path),
-#elif __APPLE__
-left_cam_param(left_cam_param),
-right_cam_param(right_cam_param),
-#endif
-hor_corner_n(chessboard_horizontal_corner_num),
-ver_corner_n(chessboard_vertical_corner_num),
-square_size(chessboard_square_size) 
-{  }
+    imgTrans(nh),
+#if USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER
+    left_image_sub(imgTrans, "stereo/left_image", 1),
+    right_image_sub(imgTrans, "stereo/right_image", 1),
+#else
+    left_image_sub(nh, "stereo/left_image", 1),
+    right_image_sub(nh, "stereo/right_image" 1),
+#endif /* USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER */
+    sync( SyncPolicy( 1 ), left_image_sub, right_image_sub ),
+    hor_corner_n(chessboard_horizontal_corner_num),
+    ver_corner_n(chessboard_vertical_corner_num),
+    square_size(chessboard_square_size)
+{ 
+    sync.registerCallback( boost::bind(&StereoCalib::stereoCalibrationProcessCallback, this, _1, _2) );
+}
 
 StereoCalib::~StereoCalib() {
     camera_mat_left.release();
@@ -49,34 +46,15 @@ StereoCalib::~StereoCalib() {
     fundamental_mat.release();
 }
 
+/// @brief callback alert when new camera image received
+/// @param left_image_  left  camera sensor_msgs pointer
+/// @param right_image_ right camera seonsor_msgs pointer
+void StereoCalib::stereoCalibrationProcessCallback(const sensor_msgs::ImageConstPtr& left_image_, const sensor_msgs::ImageConstPtr& right_image_) {
+    left_image = cv_bridge::toCvShare(left_image_, left_image_->encoding)->image;
+    right_image = cv_bridge::toCvShare(right_image_, right_image_->encoding)->image;
+}
+
 void StereoCalib::startStereoCalibNRect() {
-
-#if __linux__
-    auto stream_left = VideoCapture(left_cam_path, CAP_V4L2);
-    auto stream_right = VideoCapture(right_cam_path, CAP_V4L2);
-#elif __APPLE__
-    auto stream_left = VideoCapture(left_cam_param, CAP_AVFOUNDATION);
-    auto stream_right = VideoCapture(right_cam_param, CAP_AVFOUNDATION);
-#elif __WINDOWS__
-    // TODO make windows version
-#else
-#endif
-    // stream_left.set(CAP_PROP_FRAME_WIDTH, 660);
-    // stream_left.set(CAP_PROP_FRAME_HEIGHT, 660);
-    // stream_right.set(CAP_PROP_FRAME_WIDTH, 660);
-    // stream_right.set(CAP_PROP_FRAME_HEIGHT, 660);
-    // stream_left.set(CAP_PROP_FPS, (double) FPS);
-    // stream_right.set(CAP_PROP_FPS, (double) FPS);
-
-    if (!stream_left.isOpened() || !stream_right.isOpened()) {
-        throw std::runtime_error(
-            fmt::format("[{}] camera is not opened.\n",
-                fmt::format(fg(fmt::color::red), "CRITIC")
-            )
-        );
-    }
-
-    double desired_sleep_time = 1.0 / (double) FPS;
 
     vector<Point3f> objp;
     for(size_t i = 0; i < hor_corner_n; i++) {
@@ -85,27 +63,10 @@ void StereoCalib::startStereoCalibNRect() {
         }
     }
 
-    Mat left_image, right_image;
     while (true) {
         // capture left and right image synchronously
         static bool first_calib = false;
         static int stereo_cnt = 0;
-
-        auto start_time = high_resolution_clock::now();
-
-        int ret = stream_left.read(left_image); // capture image left
-        ret = stream_right.read(right_image);   // capture iamge right
-
-        // assert image size have to be same.
-        assert(left_image.size() == right_image.size());
-
-        if (!ret) {
-            throw std::runtime_error(
-                fmt::format("[{}] Cannot grab camera image from camera stream.\n",
-                    fmt::format(fg(fmt::color::red), "CRITIC")
-                )
-            );
-        }
 
         /* ---------- while running as 30 fps START ---------- */
         /**
@@ -115,13 +76,10 @@ void StereoCalib::startStereoCalibNRect() {
 
         Mat left_image_gray, right_image_gray; 
         if (first_calib) {
-            Mat left_image_ = left_image.clone();
-            Mat right_image_ = right_image.clone();
-            left_image.release();
-            right_image.release();
-
-            undistort(left_image_, left_image, camera_mat_left, dist_coeff_left);
-            undistort(right_image_, right_image, camera_mat_right, dist_coeff_right);
+            Mat left_image_ = this->left_image.clone();
+            Mat right_image_ = this->right_image.clone();
+            undistort(left_image_, this->left_image, camera_mat_left, dist_coeff_left);
+            undistort(right_image_, this->right_image, camera_mat_right, dist_coeff_right);
         }
 #if (CV_VERSION_MAJOR >= 4)
         cvtColor(left_image, left_image_gray, COLOR_RGB2GRAY);
@@ -157,7 +115,7 @@ void StereoCalib::startStereoCalibNRect() {
             drawChessboardCorners(right_image_gray, Size(ver_corner_n, hor_corner_n), corner_pts_r, success_r);
 
             char check = static_cast<char>(waitKey(1) & 0xFF);
-            if (check == 0x63 || check == 0x43) { // if keyboard press 'C' or 'c'
+            if (check == 'C' || check == 'c') { // if keyboard press 'C' or 'c'
                 object_points.push_back(objp); 
 
                 img_points_l.push_back(corner_pts_l);
@@ -194,14 +152,6 @@ void StereoCalib::startStereoCalibNRect() {
         imshow("image_right", right_image_gray);
 
         /* ------------ while running as 30 fps END ----------- */
-
-        auto end_time = high_resolution_clock::now();
-        duration<double> elapse =  end_time - start_time;
-
-        double sleep_time = desired_sleep_time - elapse.count();
-        if (sleep_time > 0) {
-            std::this_thread::sleep_for(microseconds(static_cast<int>(sleep_time * 1e6)));
-        }
 
         if (waitKey(1) == 27) {
             break;
