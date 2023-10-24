@@ -45,8 +45,6 @@ public:
         const sensor_msgs::ImageConstPtr& right_iamge_
     );
     
-    void startStereoCalibNRect();
-    
 private:
 
     ros::NodeHandle nh;
@@ -71,9 +69,6 @@ private:
     cv::Mat right_image; // right image
 
     std::vector<cv::Point3f> objp;
-
-    std::mutex l_image_mx;
-    std::mutex r_image_mx;
 
     int hor_corner_n;  //Horizontal corners
     int ver_corner_n; //Vertical corners
