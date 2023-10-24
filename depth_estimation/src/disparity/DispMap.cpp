@@ -104,20 +104,30 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
     Mat gray_img_l, gray_img_r;
     cvtColor(flat_img_left, gray_img_l, COLOR_RGB2GRAY);
     cvtColor(flat_img_right, gray_img_r, COLOR_RGB2GRAY);
+
+    // ------- Gaussian blur
+    cv::Mat gaus_l, gaus_r;
+    cv::GaussianBlur(gray_img_l, gaus_l, Size(3, 3), 0, 0, cv::INTER_LINEAR);
+    cv::GaussianBlur(gray_img_r, gaus_r, Size(3, 3), 0, 0, cv::INTER_LINEAR);
+
+    // ------- Canny endge
+    // cv::Mat canny_l, canny_r;
+    // cv::Canny(gaus_l, canny_l, 50, 150);
+    // cv::Canny(gaus_r, canny_r, 50, 150);
     
     // ------- disparity map
-    Mat stereo_compute_l, disp_l;
-    stereo->compute(gray_img_l, gray_img_r, stereo_compute_l);
-    stereo_compute_l.convertTo(disp_l, CV_16S);
+    Mat disp_l;
+    stereo->compute(gaus_l, gaus_r, disp_l);
+    // stereo_compute_l.convertTo(disp_l, CV_16S);
 
-    Mat stereo_compute_r, disp_r;
-    stereoR->compute(gray_img_r, gray_img_l, stereo_compute_r);
-    stereo_compute_r.convertTo(disp_r, CV_16S);
+    Mat disp_r;
+    stereoR->compute(gaus_r, gaus_l, disp_r);
+    // stereo_compute_r.convertTo(disp_r, CV_16S);
 
     // ------- filter stereo
 
     Mat filtered_b4_normalize, filtered_normalize;
-    wls_filter->filter(disp_l, left_img_, filtered_b4_normalize, disp_r);
+    wls_filter->filter(disp_l, gray_img_l, filtered_b4_normalize, disp_r);
     normalize(filtered_b4_normalize, filtered_normalize, 255.0, 0.0, NORM_MINMAX);
 
     Mat final_filtered;
@@ -127,5 +137,9 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
 }
 
 Mat DispMap::disparityImage() const {
-    return disparity_filtered_image;
+    Mat color_filtered;
+
+    cv::applyColorMap(disparity_filtered_image, color_filtered, cv::COLORMAP_OCEAN);
+
+    return color_filtered;
 }
