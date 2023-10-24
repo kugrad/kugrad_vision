@@ -6,9 +6,13 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <cv_bridge/cv_bridge.h>
 
+#include <thread>
+#include <mutex>
+#include <chrono>
+
 // #include <boost/date_time/posix_time/posix_time.pp>
 
-#if TEST
+#if !TEST
 #include "stereo_stream/CamConfig.h"
 #endif /* TEST */
 
@@ -67,8 +71,8 @@ int main(int argc, char* argv[]) {
     stream_r.set(cv::CAP_PROP_FRAME_HEIGHT, cam_height);
     stream_r.set(cv::CAP_PROP_FPS, fps);
 #else
-    VideoCapture stream_l(left_camera_fd, CAP_V4L2);
-    VideoCapture stream_r(right_camera_fd, CAP_V4L2);
+    cv::VideoCapture stream_l(left_camera_fd, cv::CAP_V4L2);
+    cv::VideoCapture stream_r(right_camera_fd, cv::CAP_V4L2);
 
     stream_l.set(cv::CAP_PROP_FRAME_WIDTH, cam_width);
     stream_l.set(cv::CAP_PROP_FRAME_HEIGHT, cam_height);
@@ -87,39 +91,57 @@ int main(int argc, char* argv[]) {
     sensor_msgs::ImagePtr left_msg;
     sensor_msgs::ImagePtr right_msg;;
 
-    cv::Mat image_left;
-    cv::Mat image_right;
-
     ros::Rate fps_rate(fps); // 30 fps => 30hz
 
-    while (ros::ok()) {
+    std::thread left_image_stream_thread([&]() {
 
-        // stream_image_communication::Stereo_image_msg msg;
+        cv::Mat image_left;
 
-        // /* read image */
-        stream_l >> image_left;
-        stream_r >> image_right;
+        while (ros::ok()) {
+            // ROS_INFO("stream left_continue\n");
+            stream_l >> image_left;
 
-        if (image_left.empty()) {
-            alert::critic_runtime_error("LEFT Image is not readed");
+            // cv::imshow("image_left", image_left);
+
+            if (image_left.empty()) {
+                alert::critic_runtime_error("LEFT Image is not readed");
+            }
+
+            left_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_left).toImageMsg();
+            left_img_pub.publish(left_msg);
+
+            // cv::waitKey(1);
+            ros::spinOnce();
+            fps_rate.sleep();
         }
-        if (image_right.empty()) {
-            alert::critic_runtime_error("RIGHT Image is not readed");
+
+    });
+
+    std::thread right_image_stream_thread([&]() {
+
+        cv::Mat image_right;
+
+        while (ros::ok()) {
+            // ROS_INFO("stream right_continue\n");
+            stream_r >> image_right;
+
+            // cv::imshow("image_right", image_right);
+
+            if (image_right.empty()) {
+                alert::critic_runtime_error("LEFT Image is not readed");
+            }
+
+            right_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_right).toImageMsg();
+            right_img_pub.publish(right_msg);
+
+            // cv::waitKey(1);
+            ros::spinOnce();
+            fps_rate.sleep();
         }
 
-        left_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_left).toImageMsg();
-        right_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_right).toImageMsg();
+    });
 
-        left_img_pub.publish(left_msg);
-        right_img_pub.publish(right_msg);
-
-        // auto now = boost::posix_time::microsec_clock::universal_time();
-
-        // uint64_t cur_time_in_posix = (now - epoch).total_milliseconds();
-
-        ros::spinOnce();
-        fps_rate.sleep();
-    }
+    ros::spin();
 
     return 0;
 }
