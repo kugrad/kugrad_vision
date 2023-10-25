@@ -13,7 +13,12 @@
 #include <thread>
 #include <mutex>
 
+#include <fstream>
+#include <string>
+#include <iostream>
+
 using namespace std::chrono;
+using namespace cv;
 
 StereoCalib::StereoCalib(
     int chessboard_horizontal_corner_num,
@@ -137,44 +142,55 @@ void StereoCalib::stereoCalibrationProcessCallback(const sensor_msgs::ImageConst
             alert::info_message("Stereo calibration count: %d", stereo_cnt);
 
             first_calib = true;
-        } else if (check == 27) {
-            // store camera parameter
-            alert::info_message("Getting Rectification matrix...");
 
-            stereoRectify(
-                camera_mat_left, dist_coeff_left,
-                camera_mat_right, dist_coeff_right,
-                left_image.size(),
-                rotation_mat,
-                translation_mat,
-                rectify_left,
-                rectify_right,
-                projection_left,
-                projection_right,
-                disparity
-            );
-
-            alert::info_message("Getting Rectification matrix complete...");
-
-            FileStorage calib_info_storage(CONFIG_DIR_PATH "calib_storage.yaml", FileStorage::WRITE);
-
-            calib_info_storage << "camera_matrix_left" << camera_mat_left;
-            calib_info_storage << "camera_matrix_right" << camera_mat_right;
-            calib_info_storage << "dist_coefficient_left" << dist_coeff_left;
-            calib_info_storage << "dist_coefficient_right" << dist_coeff_right;
-            calib_info_storage << "rotation" << rotation_mat;
-            calib_info_storage << "translation" << translation_mat;
-            calib_info_storage << "essential" << essential_mat;
-            calib_info_storage << "fundamental" << fundamental_mat;
-            calib_info_storage << "rectification_left" << rectify_left;
-            calib_info_storage << "rectification_right" << rectify_right;
-            calib_info_storage << "projection_left" << projection_left;
-            calib_info_storage << "projection_right" << projection_right;
-            calib_info_storage << "disparity" << disparity;
-
-            calib_info_storage.release();
-
+            std::ofstream file(CONFIG_DIR_PATH "calib_check.txt", std::ios::app);
+            if (file.is_open()) {
+                file << camera_mat_left.at<double>(0, 0) << " " << camera_mat_left.at<double>(1, 1) << " "
+                    << camera_mat_right.at<double>(0, 0) << " " << camera_mat_right.at<double>(1, 1) << "\n";
+                file.close();
+            }
         }
+
+    }
+
+    char check = static_cast<char>(waitKey(1) & 0xFF);
+    if (check == 27) {
+        // store camera parameter
+        alert::info_message("Getting Rectification matrix...");
+
+        stereoRectify(
+            camera_mat_left, dist_coeff_left,
+            camera_mat_right, dist_coeff_right,
+            left_image.size(),
+            rotation_mat,       /* R  */
+            translation_mat,    /* T  */
+            rectify_left,       /* R1 */
+            rectify_right,      /* R2 */
+            projection_left,    /* P1 */
+            projection_right,   /* p2 */
+            disparity           /* Q  */
+        );
+
+        alert::info_message("Getting Rectification matrix complete...");
+
+        FileStorage calib_info_storage(CONFIG_DIR_PATH "calib_storage.yaml", FileStorage::WRITE);
+
+        calib_info_storage << "camera_matrix_left" << camera_mat_left;
+        calib_info_storage << "camera_matrix_right" << camera_mat_right;
+        calib_info_storage << "dist_coefficient_left" << dist_coeff_left;
+        calib_info_storage << "dist_coefficient_right" << dist_coeff_right;
+        calib_info_storage << "rotation" << rotation_mat;
+        calib_info_storage << "translation" << translation_mat;
+        calib_info_storage << "essential" << essential_mat;
+        calib_info_storage << "fundamental" << fundamental_mat;
+        calib_info_storage << "rectification_left" << rectify_left;
+        calib_info_storage << "rectification_right" << rectify_right;
+        calib_info_storage << "projection_left" << projection_left;
+        calib_info_storage << "projection_right" << projection_right;
+        calib_info_storage << "disparity" << disparity;
+
+        calib_info_storage.release();
+
     }
 
 #if SHOW_IMAGE

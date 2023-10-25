@@ -24,8 +24,8 @@
 #include <iostream>
 #include <stdio.h>
 
-using namespace cv;
-using namespace std;
+// using namespace cv;
+// using namespace std;
 
 class StereoCalib {
 
@@ -75,9 +75,9 @@ private:
     float square_size;
 
     // calibration parameter both intrinsic and extrinsic
-    vector<vector<Point3f>> object_points; //Represents the 3D corners actual location
-    vector<vector<Point2f>> img_points_l, img_points_r; //Represent the location of corners detected in 3D
-    vector<Point2f> corner_pts_l, corner_pts_r;
+    std::vector<std::vector<cv::Point3f>> object_points; //Represents the 3D corners actual location
+    std::vector<std::vector<cv::Point2f>> img_points_l, img_points_r; //Represent the location of corners detected in 3D
+    std::vector<cv::Point2f> corner_pts_l, corner_pts_r;
     // vector<Point3f> obj;
     
     
@@ -88,17 +88,17 @@ private:
     // camera_mat's are 3x3 floating point arrays of each camera
     // dist_coeff's are distortion coefficients vectors of each camera
     // dist_coeff's Matrix of distortion coefficient of camera left and right
-    Mat camera_mat_left, camera_mat_right;
-    Mat dist_coeff_left, dist_coeff_right;
+    cv::Mat camera_mat_left, camera_mat_right;
+    cv::Mat dist_coeff_left, dist_coeff_right;
     
     // rotation_mat     - Rotation Matrix between the first and second camera coordinate systems
     // translation_mat  - Translation vector between the cameras coordinate systems
     // essential_mat    - Essential Matrix
     // fundamental_mat  - Fundamental matrix
-    Mat rotation_mat;
-    Mat translation_mat;
-    Mat essential_mat;
-    Mat fundamental_mat;
+    cv::Mat rotation_mat;
+    cv::Mat translation_mat;
+    cv::Mat essential_mat;
+    cv::Mat fundamental_mat;
     
     /**
      * @brief rectification parameter
@@ -109,11 +109,11 @@ private:
     // projection_left - Projection matrix 3x4 in the new and rectified coordinate system of the left camera
     // projection_right - Projection matrix 3x4 in the new and rectified coordinate system of the right camera
     // disparity - Disparity matrix by depth 4x4
-    Mat rectify_left;
-    Mat rectify_right;
-    Mat projection_left;
-    Mat projection_right;
-    Mat disparity;
+    cv::Mat rectify_left;
+    cv::Mat rectify_right;
+    cv::Mat projection_left;
+    cv::Mat projection_right;
+    cv::Mat disparity;
     
 };
 
