@@ -3,6 +3,7 @@
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 using namespace cv;
 
@@ -119,8 +120,10 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
     Mat disp_l, disp_r;
     stereo->compute(gaus_l, gaus_r, disp_l);
     stereoR->compute(gaus_r, gaus_l, disp_r);
-    // stereo_compute_l.convertTo(disp_l, CV_16S);
-    // stereo_compute_r.convertTo(disp_r, CV_16S);
+    // disp_l.convertTo(disp_l, CV_16S);
+    // disp_r.convertTo(disp_r, CV_16S);
+
+    // imshow("disp_l", disp_l / (16 * 5));
 
     // ------- filter stereo
 
@@ -136,8 +139,8 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
 
 Mat DispMap::disparityImage() const {
 
-    Mat color_filtered;
-    cv::applyColorMap(disparity_filtered_image, color_filtered, cv::COLORMAP_OCEAN);
+    // Mat color_filtered;
+    // cv::applyColorMap(disparity_filtered_image, color_filtered, cv::COLORMAP_OCEAN);
 
-    return color_filtered;
+    return disparity_filtered_image;
 }
