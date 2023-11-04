@@ -1,12 +1,11 @@
 #include "CamModify.h"
 
-#include <pcl_ros/point_cloud.h> // ros point cloud libraries
+// #include <pcl_ros/point_cloud.h> // ros point cloud libraries
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
 
 using namespace cv;
 
@@ -137,6 +136,8 @@ pairMatMat CamModify::undistortImage() {
 
     return std::make_pair(image_l, image_r);
 }
+
+#include <opencv2/imgproc.hpp>  
 
 pairMatMat CamModify::imageCvt2Gray() {
     cvtColor(image_l, gray_l, COLOR_RGB2GRAY);

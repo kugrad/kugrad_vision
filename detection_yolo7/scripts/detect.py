@@ -5,10 +5,13 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
 import torch
+import numpy as np
 from numpy import random
+
 
 from models.experimental import attempt_load
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
+from utils.datasets import letterbox
 
 class DetectYolo:
     def __init__(self, weights):
@@ -67,16 +70,32 @@ class DetectYolo:
     def receiveImageCallback(self, image_data: Image):
         # image => received left camera image
         try:
-            self.image = self.bridge.imgmsg_to_cv2(image_data, image_data.encoding)
+            self.img0 = self.bridge.imgmsg_to_cv2(image_data, image_data.encoding)
         except CvBridgeError as e:
             rospy.INFO("Error convert image %s", e) 
             return
 
-        self.image = torch.from_numpy(self.image).to(self.device)
-        self.image = self.image.half() if half else self.image.float()
-        self.image /= 255.0 # 0 ~ 255 to 0.0 ~ 1.0
-        if self.image.ndimension() == 3:
-            self.image = self.image.unsqueeze(0)
+        # self.img_size = self.img0.get().size()
+        height, width = self.img0.shape
+        self.image_size = (width, height)
+
+
+        # img0 in yolov7 is self.img0
+        # img  in yolov7 is self.img
+        self.img = letterbox(self.img0, self.image_size, stride=self.stride)[0]
+        self.img = self.img[:, :, ::-1].transpose(2, 0, 1)
+        self.img = np.ascontiguousarray(self.img)
+
+        # self.img0, self.img
+
+        # FIXME check if meet the requirement of yolov7
+
+
+        # self.image = torch.from_numpy(self.image).to(self.device)
+        # self.image = self.image.half() if half else self.image.float()
+        # self.image /= 255.0 # 0 ~ 255 to 0.0 ~ 1.0
+        # if self.image.ndimension() == 3:
+        #     self.image = self.image.unsqueeze(0)
 
         # TODO making yolov7 process here
 
@@ -97,9 +116,7 @@ class Histogram:
         self.center_x = center_x
     
 
-
-
 if __name__ == '__main__':
     with torch.no_grad():
         process = DetectYolo()
-        process.initRos()
+        process.initRos() # subscriber registeration
