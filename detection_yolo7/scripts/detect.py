@@ -75,19 +75,44 @@ class DetectYolo:
             rospy.INFO("Error convert image %s", e) 
             return
 
-        # self.img_size = self.img0.get().size()
         height, width = self.img0.shape
         self.image_size = (width, height)
 
-
         # img0 in yolov7 is self.img0
         # img  in yolov7 is self.img
+
         self.img = letterbox(self.img0, self.image_size, stride=self.stride)[0]
         self.img = self.img[:, :, ::-1].transpose(2, 0, 1)
-        self.img = np.ascontiguousarray(self.img)
+        self.img: np.ndarray = np.ascontiguousarray(self.img)
 
         # self.img0, self.img
+        self.img = torch.from_numpy(self.img).to(self.device)
+        self.img = self.img.half() if self.half else self.img.float()  # uint8 to fp16/32
+        self.img /= 255.0  # 0 - 255 to 0.0 - 1.0
+        if self.img.ndimension() == 3:
+            self.img = self.img.unsqueeze(0)
 
+        # Warmup
+        if self.device.type != 'cpu' and (old_img_b != self.img.shape[0] or old_img_h != self.img.shape[2] or old_img_w != self.img.shape[3]):
+            old_img_b = self.img.shape[0]
+            old_img_h = self.img.shape[2]
+            old_img_w = self.img.shape[3]
+            for i in range(3):
+                self.model(self.img, augment=opt.augment)[0]
+        
+        # Inference
+        t1 = time_synchronized()
+        with torch.no_grad():   # Calculating gradients would cause a GPU memory leak
+            pred = model(self.img, augment=opt.augment)[0]
+        t2 = time_synchronized()
+
+        # Apply NMS
+        pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, classes=opt.classes, agnostic=opt.agnostic_nms)
+        t3 = time_synchronized()
+
+        # Apply Classifier
+        if classify:
+            pred = apply_classifier(pred, modelc, img, im0s)
         # FIXME check if meet the requirement of yolov7
 
 

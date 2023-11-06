@@ -4,32 +4,35 @@
 #include <boost/bind.hpp>
 
 #include <fmt/core.h>
+#include <fmt/color.h>
 
 #include <opencv2/highgui/highgui.hpp>
+
+#include <cmath>
 
 using namespace cv;
 
 #if SHOW_IMAGE
+
 #include <vector>
 #include <iostream>
-void windowMouseCallback(int event, int x, int y, int flag, void* params) {
+
+void DispProcess::windowMouseCallback(int event, int x, int y, int flag, void* params) {
 
     Mat disp = *(static_cast<Mat*>(((void**) params)[0]));
-
-    int baseline = 0.037;
-    int focal_length = 7.16;
-
+    double camera_focal_len = *(static_cast<double*>(((void**) params)[1]));
 
     if (event == EVENT_LBUTTONDOWN) {
 
-        int disparity_value = disp.at<short>(x, y);
-
-        fmt::print("x, y >> ({}, {})\n", x, y);
-        fmt::print("disparity value: {}\n", disparity_value / (16 * 5));
-        fmt::print("distance {}\n", (baseline * focal_length) / static_cast<double>(disparity_value));
+        double est_dist = ((camera_focal_len * baseline) / (disp.at<short>(y, x) / 16)) * 100;
+        
+        fmt::print(
+            "{}: {} cm\n",
+            fmt::format(fg(fmt::color::light_green), "Distance"),
+            round(est_dist * 1000) / 1000
+        );
 
     }
-
 
 }
 #endif
@@ -70,11 +73,12 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
     disp->makingDisparityProcess(left_image, right_image);
 
     Mat disp_map = disp->disparityImage();
+    double cam_focal_len = disp->cameraFocalLength();
 
 #if SHOW_IMAGE
-    void* param[] = { &disp_map };
+    void* param[] = { &disp_map, &cam_focal_len };
     imshow("disparity map", disp_map);
-    setMouseCallback("disparity map", windowMouseCallback, (void*) param);
+    setMouseCallback("disparity map", DispProcess::windowMouseCallback, (void*) param);
 #endif /* SHOW_IMAGE */
 
     // * ----------------------  END  Code related with disparity map  END  ---------------------- *

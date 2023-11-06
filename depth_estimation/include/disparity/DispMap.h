@@ -27,7 +27,9 @@ public:
 
     void initUndistored(const cv::Size left_img_size_, const cv::Size right_img_size_);
     void makingDisparityProcess(const cv::Mat& left_img_, const cv::Mat& right_img_);
-    cv::Mat disparityImage() const;
+
+    const cv::Mat disparityImage() const;
+    const double cameraFocalLength() const;
 
 private:
 

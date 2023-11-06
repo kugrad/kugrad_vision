@@ -98,18 +98,18 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
         alert::critic_runtime_error("%s Undistorted parameter is not taken.", __METHOD_NAME__);
     }
 
-    cv::Mat flat_img_left, flat_img_right;
-    remap(left_img_, flat_img_left, left_stereo_map.first, left_stereo_map.second, INTER_LINEAR, BORDER_CONSTANT);
-    remap(right_img_, flat_img_right, right_stereo_map.first, right_stereo_map.second, INTER_LINEAR, BORDER_CONSTANT);
+    Mat undistorted_img_l, undistorted_img_r;
+    remap(left_img_, undistorted_img_l, left_stereo_map.first, left_stereo_map.second, INTER_LINEAR, BORDER_CONSTANT);
+    remap(right_img_, undistorted_img_r, right_stereo_map.first, right_stereo_map.second, INTER_LINEAR, BORDER_CONSTANT);
 
     Mat gray_img_l, gray_img_r;
-    cvtColor(flat_img_left, gray_img_l, COLOR_RGB2GRAY);
-    cvtColor(flat_img_right, gray_img_r, COLOR_RGB2GRAY);
+    cvtColor(undistorted_img_l, gray_img_l, COLOR_RGB2GRAY);
+    cvtColor(undistorted_img_r, gray_img_r, COLOR_RGB2GRAY);
 
     // ------- Gaussian blur
-    cv::Mat gaus_l, gaus_r;
-    cv::GaussianBlur(gray_img_l, gaus_l, Size(3, 3), 0, 0, cv::INTER_LINEAR);
-    cv::GaussianBlur(gray_img_r, gaus_r, Size(3, 3), 0, 0, cv::INTER_LINEAR);
+    cv::Mat after_gaus_l, after_gaus_r;
+    cv::GaussianBlur(gray_img_l, after_gaus_l, Size(3, 3), 0, 0, INTER_LINEAR);
+    cv::GaussianBlur(gray_img_r, after_gaus_r, Size(3, 3), 0, 0, INTER_LINEAR);
 
     // ------- Canny endge
     // cv::Mat canny_l, canny_r;
@@ -118,10 +118,10 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
     
     // ------- disparity map
     Mat disp_l, disp_r;
-    stereo->compute(gaus_l, gaus_r, disp_l);
-    stereoR->compute(gaus_r, gaus_l, disp_r);
-    // disp_l.convertTo(disp_l, CV_16S);
-    // disp_r.convertTo(disp_r, CV_16S);
+    stereo->compute(after_gaus_l, after_gaus_r, disp_l);
+    stereoR->compute(after_gaus_r, after_gaus_l, disp_r);
+    disp_l.convertTo(disp_l, CV_16S);
+    disp_r.convertTo(disp_r, CV_16S);
 
     // imshow("disp_l", disp_l / (16 * 5));
 
@@ -137,10 +137,23 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
     disparity_filtered_image = final_filtered.clone();
 }
 
-Mat DispMap::disparityImage() const {
+const Mat DispMap::disparityImage() const {
 
-    // Mat color_filtered;
-    // cv::applyColorMap(disparity_filtered_image, color_filtered, cv::COLORMAP_OCEAN);
+    Mat color_filtered;
+    cv::applyColorMap(disparity_filtered_image, color_filtered, cv::COLORMAP_OCEAN);
 
-    return disparity_filtered_image;
+    return color_filtered;
+}
+
+const double DispMap::cameraFocalLength() const {
+
+    double avg_focal_len_px = 
+    (
+        cam_l.at<double>(0, 0) +
+        cam_l.at<double>(1, 1) +
+        cam_r.at<double>(0, 0) +
+        cam_r.at<double>(1, 1)
+    ) / 4;
+
+    return avg_focal_len_px;
 }

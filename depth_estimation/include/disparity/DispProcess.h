@@ -36,6 +36,11 @@ public:
     );
 
 private:
+
+#ifdef SHOW_IMAGE
+    static void windowMouseCallback(int event, int x, int y, int flag, void* params);
+#endif
+
     ros::NodeHandle nh;
     image_transport::ImageTransport imgTrans;
 
@@ -53,6 +58,8 @@ private:
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> SyncPolicy;
 #endif /* EXACT_TIME_SYNC */
     message_filters::Synchronizer<SyncPolicy> sync;
+
+    static constexpr double baseline = 0.0375;
 
     cv::Mat left_image; // left image
     cv::Mat right_image; // right image
