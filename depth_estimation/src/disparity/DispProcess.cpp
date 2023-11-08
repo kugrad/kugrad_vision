@@ -24,12 +24,13 @@ void DispProcess::windowMouseCallback(int event, int x, int y, int flag, void* p
 
     if (event == EVENT_LBUTTONDOWN) {
 
-        double est_dist = ((camera_focal_len * baseline) / (disp.at<short>(y, x) / 16)) * 100;
-        
+        double est_dist = ((camera_focal_len * baseline) / (disp.at<short>(y, x) / 16.0)) * 100;
+        // fmt::print("(coord x, y): {}, {}\n", y, x);
+
         fmt::print(
             "{}: {} cm\n",
             fmt::format(fg(fmt::color::light_green), "Distance"),
-            round(est_dist * 1000) / 1000
+            round(est_dist * 1000) / 1000.0
         );
 
     }
@@ -72,12 +73,13 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
     // * ---------------------- START Code related with disparity map START ---------------------- *
     disp->makingDisparityProcess(left_image, right_image);
 
-    Mat disp_map = disp->disparityImage();
+    Mat wls_filtered_img = disp->wlsFilteredImage();
+    Mat disparity_map = disp->leftDisparityMap();
     double cam_focal_len = disp->cameraFocalLength();
 
 #if SHOW_IMAGE
-    void* param[] = { &disp_map, &cam_focal_len };
-    imshow("disparity map", disp_map);
+    void* param[] = { &disparity_map, &cam_focal_len };
+    imshow("disparity map", wls_filtered_img);
     setMouseCallback("disparity map", DispProcess::windowMouseCallback, (void*) param);
 #endif /* SHOW_IMAGE */
 

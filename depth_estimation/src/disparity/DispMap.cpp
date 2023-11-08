@@ -123,6 +123,8 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
     disp_l.convertTo(disp_l, CV_16S);
     disp_r.convertTo(disp_r, CV_16S);
 
+    l_disparity_m = disp_l.clone();
+
     // imshow("disp_l", disp_l / (16 * 5));
 
     // ------- filter stereo
@@ -137,7 +139,11 @@ void DispMap::makingDisparityProcess(const Mat& left_img_, const Mat& right_img_
     disparity_filtered_image = final_filtered.clone();
 }
 
-const Mat DispMap::disparityImage() const {
+const Mat DispMap::leftDisparityMap() const {
+    return l_disparity_m;
+}
+
+const Mat DispMap::wlsFilteredImage() const {
 
     Mat color_filtered;
     cv::applyColorMap(disparity_filtered_image, color_filtered, cv::COLORMAP_OCEAN);

@@ -28,7 +28,8 @@ public:
     void initUndistored(const cv::Size left_img_size_, const cv::Size right_img_size_);
     void makingDisparityProcess(const cv::Mat& left_img_, const cv::Mat& right_img_);
 
-    const cv::Mat disparityImage() const;
+    const cv::Mat leftDisparityMap() const;
+    const cv::Mat wlsFilteredImage() const;
     const double cameraFocalLength() const;
 
 private:
@@ -49,6 +50,7 @@ private:
     std::pair<cv::Mat, cv::Mat> right_stereo_map;
 
     // cv::Mat image_l, image_r; // store undistored images
+    cv::Mat l_disparity_m;
     cv::Mat disparity_filtered_image;
 
 #if STEREO_SGBM
@@ -57,13 +59,13 @@ private:
     // Stereo SBGM parameter value
     static constexpr int smoothing_factor = 4; // use it for P1 and P2
     static constexpr int window_block_size = 3;
-    static constexpr int min_disparity = 16 * 1;
+    static constexpr int min_disparity = 16 * 0;
     // constexpr static int num_disparity = 16 * 5 - mindisparity; 
-    static constexpr int num_disparity = 16 * 6;
+    static constexpr int num_disparity = 16 * 5;
     static constexpr int P1 = 8 * window_block_size * window_block_size * smoothing_factor;
     static constexpr int P2 = 32 * window_block_size * window_block_size * smoothing_factor;
     // constexpr static int disp12MaxDiff = 5;
-    static constexpr int disp12MaxDiff = 0;
+    static constexpr int disp12MaxDiff = 5;
     static constexpr int preFilterCap = 25;
     static constexpr int uniquenessRatio = 10;
     static constexpr int speckleWindowSize = 100;

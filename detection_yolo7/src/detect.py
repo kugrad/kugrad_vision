@@ -886,6 +886,7 @@ def detect(save_img=False):
         testcnt2=testcnt2+len(center)
 
     # EXAMPLE
+    # TODO publish set in here
     # coord = Pose2D()
     # coord.x = x
     # coord.y = y

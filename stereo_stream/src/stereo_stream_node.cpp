@@ -93,55 +93,79 @@ int main(int argc, char* argv[]) {
 
     ros::Rate fps_rate(fps); // 30 fps => 30hz
 
-    std::thread left_image_stream_thread([&]() {
+    while (ros::ok()) {
 
-        cv::Mat image_left;
+        cv::Mat image_left, image_right;
+        stream_l >> image_left;
+        stream_r >> image_right;
 
-        while (ros::ok()) {
-            // ROS_INFO("stream left_continue\n");
-            stream_l >> image_left;
-
-            // cv::imshow("image_left", image_left);
-
-            if (image_left.empty()) {
-                alert::critic_runtime_error("LEFT Image is not readed");
-            }
-
-            left_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_left).toImageMsg();
-            left_img_pub.publish(left_msg);
-
-            // cv::waitKey(1);
-            ros::spinOnce();
-            fps_rate.sleep();
+        if (image_left.empty()) {
+            alert::critic_runtime_error("LEFT Image is not readed");
         }
 
-    });
-
-    std::thread right_image_stream_thread([&]() {
-
-        cv::Mat image_right;
-
-        while (ros::ok()) {
-            // ROS_INFO("stream right_continue\n");
-            stream_r >> image_right;
-
-            // cv::imshow("image_right", image_right);
-
-            if (image_right.empty()) {
-                alert::critic_runtime_error("LEFT Image is not readed");
-            }
-
-            right_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_right).toImageMsg();
-            right_img_pub.publish(right_msg);
-
-            // cv::waitKey(1);
-            ros::spinOnce();
-            fps_rate.sleep();
+        if (image_right.empty()) {
+            alert::critic_runtime_error("RIGHT Image is not readed");
         }
 
-    });
+        left_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_left).toImageMsg();
+        right_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_right).toImageMsg();
 
-    ros::spin();
+        left_img_pub.publish(left_msg);
+        right_img_pub.publish(right_msg);
+
+        ros::spinOnce();
+        fps_rate.sleep();
+    }
+
+    // std::thread left_image_stream_thread([&]() {
+
+    //     cv::Mat image_left;
+
+    //     while (ros::ok()) {
+    //         // ROS_INFO("stream left_continue\n");
+    //         stream_l >> image_left;
+
+    //         // cv::imshow("image_left", image_left);
+
+    //         if (image_left.empty()) {
+    //             alert::critic_runtime_error("LEFT Image is not readed");
+    //         }
+
+    //         left_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_left).toImageMsg();
+    //         left_img_pub.publish(left_msg);
+
+    //         // cv::waitKey(1);
+    //         ros::spinOnce();
+    //         fps_rate.sleep();
+    //     }
+
+    // });
+
+    // std::thread right_image_stream_thread([&]() {
+
+    //     cv::Mat image_right;
+
+    //     while (ros::ok()) {
+    //         // ROS_INFO("stream right_continue\n");
+    //         stream_r >> image_right;
+
+    //         // cv::imshow("image_right", image_right);
+
+    //         if (image_right.empty()) {
+    //             alert::critic_runtime_error("LEFT Image is not readed");
+    //         }
+
+    //         right_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_right).toImageMsg();
+    //         right_img_pub.publish(right_msg);
+
+    //         // cv::waitKey(1);
+    //         ros::spinOnce();
+    //         fps_rate.sleep();
+    //     }
+
+    // });
+
+    // ros::spin();
 
     return 0;
 }

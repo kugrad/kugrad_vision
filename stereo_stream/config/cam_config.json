@@ -4,8 +4,8 @@
         "right": "/dev/video4"
     },
     "resolution": {
-        "width": 1024,
-        "height":576 
+        "width": 660,
+        "height": 480 
     },
     "fps": 15
 }
