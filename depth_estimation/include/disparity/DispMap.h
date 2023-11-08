@@ -55,20 +55,20 @@ private:
     cv::Ptr<cv::StereoSGBM> stereo;
 
     // Stereo SBGM parameter value
-    constexpr static int smoothing_factor = 4; // use it for P1 and P2
-    constexpr static int window_block_size = 3;
-    constexpr static int min_disparity = 0;
+    static constexpr int smoothing_factor = 4; // use it for P1 and P2
+    static constexpr int window_block_size = 3;
+    static constexpr int min_disparity = 16 * 1;
     // constexpr static int num_disparity = 16 * 5 - mindisparity; 
-    constexpr static int num_disparity = 16 * 5;
-    constexpr static int P1 = 8 * window_block_size * window_block_size * smoothing_factor;
-    constexpr static int P2 = 32 * window_block_size * window_block_size * smoothing_factor;
+    static constexpr int num_disparity = 16 * 6;
+    static constexpr int P1 = 8 * window_block_size * window_block_size * smoothing_factor;
+    static constexpr int P2 = 32 * window_block_size * window_block_size * smoothing_factor;
     // constexpr static int disp12MaxDiff = 5;
-    constexpr static int disp12MaxDiff = 0;
-    constexpr static int preFilterCap = 25;
-    constexpr static int uniquenessRatio = 10;
-    constexpr static int speckleWindowSize = 100;
-    constexpr static int speckleRange = 1;
-    constexpr static int mode = cv::StereoSGBM::MODE_SGBM_3WAY;
+    static constexpr int disp12MaxDiff = 0;
+    static constexpr int preFilterCap = 25;
+    static constexpr int uniquenessRatio = 10;
+    static constexpr int speckleWindowSize = 100;
+    static constexpr int speckleRange = 1;
+    static constexpr int mode = cv::StereoSGBM::MODE_SGBM_3WAY;
 #else // STEREO_BM
     cv::Ptr<cv::StereoBM> stereo;
 
@@ -81,8 +81,8 @@ private:
     cv::Ptr<cv::ximgproc::DisparityWLSFilter> wls_filter;
 
     // wls filter parameter value
-    constexpr static double lmbda = 8000.0;
-    constexpr static double sigma = 1.8;
+    static constexpr double lmbda = 8000.0;
+    static constexpr double sigma = 1.5;
 
 };
 
