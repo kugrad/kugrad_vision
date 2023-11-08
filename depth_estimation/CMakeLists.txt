@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   cv_bridge
   message_filters
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -55,11 +56,13 @@ pkg_check_modules(fmt REQUIRED IMPORTED_TARGET fmt)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  corner_info.msg
+  corner_infos.msg
+  # Message1.msg
+  # Message2.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -76,10 +79,10 @@ pkg_check_modules(fmt REQUIRED IMPORTED_TARGET fmt)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -113,7 +116,7 @@ pkg_check_modules(fmt REQUIRED IMPORTED_TARGET fmt)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES disparity_estimation
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+ CATKIN_DEPENDS message_runtime roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -139,7 +142,7 @@ add_definitions(
   -DCONFIG_DIR_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/config/\"
   -DUSE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER=1
   -DEXACT_TIME_SYNC=1
-  -DSHOW_IMAGE=1 # * show images for debugging ex) left or right and so on.
+  -DSHOW_IMAGE=0 # * show images for debugging ex) left or right and so on.
   -DSTEREO_SGBM=1
 )
 

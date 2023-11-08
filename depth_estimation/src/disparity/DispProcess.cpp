@@ -1,5 +1,7 @@
 #include "disparity/DispProcess.h"
 
+#include "depth_estimation/corner_infos.h"
+
 #include <cv_bridge/cv_bridge.h>
 #include <boost/bind.hpp>
 
@@ -12,31 +14,39 @@
 
 using namespace cv;
 
-#if SHOW_IMAGE
-
-#include <vector>
-#include <iostream>
-
 void DispProcess::windowMouseCallback(int event, int x, int y, int flag, void* params) {
 
     Mat disp = *(static_cast<Mat*>(((void**) params)[0]));
     double camera_focal_len = *(static_cast<double*>(((void**) params)[1]));
+    auto corner_info_ = static_cast<std::vector<CORNER_INFO>*>(((void**) params)[2]);
 
     if (event == EVENT_LBUTTONDOWN) {
 
         double est_dist = ((camera_focal_len * baseline) / (disp.at<short>(y, x) / 16.0)) * 100;
+        est_dist = round(est_dist * 1000) / 1000.0;
         // fmt::print("(coord x, y): {}, {}\n", y, x);
 
         fmt::print(
             "{}: {} cm\n",
             fmt::format(fg(fmt::color::light_green), "Distance"),
-            round(est_dist * 1000) / 1000.0
+            est_dist
         );
+
+        if (corner_info_->size() < 4) {
+            CORNER_INFO info = { (uint32_t) x, (uint32_t) y, est_dist };
+            corner_info_->push_back(info);
+            fmt::print(
+                "{}: ", fmt::format(fg(fmt::color::light_blue), "corner coordinate")
+            );
+            for (const auto it : *corner_info_) {
+                fmt ::print("[ {}, {}, {} ] ", it.x, it.y, it.distance);
+            }
+            fmt::print("\n");
+        }
 
     }
 
 }
-#endif
 
 DispProcess::DispProcess()
     : 
@@ -53,6 +63,7 @@ DispProcess::DispProcess()
     disp(std::make_shared<DispMap>(config_fs.get()))
 {
     sync.registerCallback( boost::bind(&DispProcess::processCallback, this, _1, _2) );
+    corner_pub = nh.advertise<depth_estimation::corner_infos>("corner_infos", 1000);
 }
 
 void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_, const sensor_msgs::ImageConstPtr& right_image_) {
@@ -77,15 +88,26 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
     Mat disparity_map = disp->leftDisparityMap();
     double cam_focal_len = disp->cameraFocalLength();
 
-#if SHOW_IMAGE
-    void* param[] = { &disparity_map, &cam_focal_len };
+    void* param[] = { &disparity_map, &cam_focal_len, &corner_info };
     imshow("disparity map", wls_filtered_img);
     setMouseCallback("disparity map", DispProcess::windowMouseCallback, (void*) param);
-#endif /* SHOW_IMAGE */
-
     // * ----------------------  END  Code related with disparity map  END  ---------------------- *
 
-#if SHOW_IMAGE
-    waitKey(1); // To display imshow
-#endif
+// #if SHOW_IMAGE
+    char key = waitKey(1); // To display imshow
+    if (key == 'c' || key == 'C') { // check
+        if (this->corner_info.size() == 4) {
+            depth_estimation::corner_infos infos;
+            for (int i = 0; i < corner_info.size(); i++) {
+                infos.depth_corners.at(i).x = corner_info[i].x;
+                infos.depth_corners.at(i).y = corner_info[i].y;
+                infos.depth_corners.at(i).distance = corner_info[i].distance;
+            }
+            corner_pub.publish(infos);
+        }
+    } else if (key == 'r' || key == 'R') { // reset
+        fmt::print("{} corner coordinate\n", fmt::format(fg(fmt::color::pink), "RESET"));
+        this->corner_info.clear();
+    }
+// #endif
 }
