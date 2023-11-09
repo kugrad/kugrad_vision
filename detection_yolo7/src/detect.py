@@ -125,7 +125,7 @@ def detect(save_img=False):
     framenum=0
     
     #몇번째 frame 전과 비교할 것인지 정하는 상수
-    beforeframe=30
+    beforeframe=15
     
     # 변화 검출 비율
     detectrate=0.4

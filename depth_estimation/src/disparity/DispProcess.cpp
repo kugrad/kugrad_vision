@@ -32,7 +32,7 @@ void DispProcess::windowMouseCallback(int event, int x, int y, int flag, void* p
             est_dist
         );
 
-        if (corner_info_->size() < 4) {
+        if (corner_info_->size() < 3) {
             CORNER_INFO info = { (uint32_t) x, (uint32_t) y, est_dist };
             corner_info_->push_back(info);
             fmt::print(
@@ -63,7 +63,6 @@ DispProcess::DispProcess()
     disp(std::make_shared<DispMap>(config_fs.get()))
 {
     sync.registerCallback( boost::bind(&DispProcess::processCallback, this, _1, _2) );
-    corner_pub = nh.advertise<depth_estimation::corner_infos>("corner_infos", 1000);
 }
 
 void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_, const sensor_msgs::ImageConstPtr& right_image_) {
@@ -96,18 +95,50 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
 // #if SHOW_IMAGE
     char key = waitKey(1); // To display imshow
     if (key == 'c' || key == 'C') { // check
-        if (this->corner_info.size() == 4) {
-            depth_estimation::corner_infos infos;
-            for (int i = 0; i < corner_info.size(); i++) {
-                infos.depth_corners.at(i).x = corner_info[i].x;
-                infos.depth_corners.at(i).y = corner_info[i].y;
-                infos.depth_corners.at(i).distance = corner_info[i].distance;
-            }
-            corner_pub.publish(infos);
+        if (this->corner_info.size() == 3) {
+            // TODO get the theta of camera frame and load
+            double theta = calculateTheta();
+            double degree = theta * (180.0 / 3.141592);
+            // if (degree < 45.0) {
+            //     degree = 90 - degree;
+            // }
+            fmt::print("degree: {}\n", degree);
         }
     } else if (key == 'r' || key == 'R') { // reset
         fmt::print("{} corner coordinate\n", fmt::format(fg(fmt::color::pink), "RESET"));
         this->corner_info.clear();
     }
 // #endif
+}
+
+const double DispProcess::calculateTheta() const {
+
+    CORNER_INFO vec_1 = { 
+        corner_info[1].x - corner_info[0].x,
+        corner_info[1].y - corner_info[0].y,
+        corner_info[1].distance - corner_info[0].distance
+     };
+
+    CORNER_INFO vec_2 = {
+        corner_info[2].x - corner_info[0].x,
+        corner_info[2].y - corner_info[0].y,
+        corner_info[2].distance - corner_info[0].distance
+    };
+
+    double vec_1_dist_square_origin = pow(vec_1.x, 2) + pow(vec_1.y, 2);
+    double vec_2_dist_square_origin = pow(vec_2.x, 2) + pow(vec_2.y, 2);
+
+    double vec_1_dist_square = vec_1_dist_square_origin + pow(vec_1.distance, 2);
+    double vec_2_dist_square = vec_2_dist_square_origin + pow(vec_2.distance, 2);
+
+    double inner_product_origin =  vec_1.x * vec_2.x + vec_1.y * vec_2.y;
+    double inner_product = inner_product_origin + vec_1.distance * vec_2.distance;
+
+    double area = (0.5) * sqrt(vec_1_dist_square * vec_2_dist_square - pow(inner_product, 2));
+    double area_origin =
+        (0.5) * sqrt(vec_1_dist_square_origin * vec_2_dist_square_origin - pow(inner_product_origin, 2));
+
+    double theda_radian = acos(area_origin / area);
+
+    return theda_radian;
 }

@@ -39,7 +39,15 @@ public:
 
 private:
 
+    typedef struct {
+        uint32_t x;
+        uint32_t y;
+        double distance;
+    } CORNER_INFO;
+
     static void windowMouseCallback(int event, int x, int y, int flag, void* params);
+    
+    const double calculateTheta() const;
 
     ros::NodeHandle nh;
     image_transport::ImageTransport imgTrans;
@@ -69,13 +77,6 @@ private:
     std::shared_ptr<ReadStereoFS> config_fs;
     std::shared_ptr<DispMap> disp;
 
-    typedef struct {
-        uint32_t x;
-        uint32_t y;
-        double distance;
-    } CORNER_INFO;
-
-    ros::Publisher corner_pub;
     std::vector<CORNER_INFO> corner_info;
 
 };
