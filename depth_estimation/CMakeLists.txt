@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
   image_transport
   cv_bridge
   message_filters
@@ -116,7 +117,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES disparity_estimation
- CATKIN_DEPENDS message_runtime roscpp rospy std_msgs
+ CATKIN_DEPENDS message_runtime roscpp rospy std_msgs geometry_msgs
 #  DEPENDS system_lib
 )
 

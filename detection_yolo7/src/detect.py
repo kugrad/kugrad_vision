@@ -540,6 +540,19 @@ def detect(save_img=False):
                                             # 사진 크기 크게 고정한 것
                                             # org_img= cv2.resize(frameboximage[framenum][now_box][1], dsize=(300,300), fx=1, fy=1, interpolation=cv2.INTER_LINEAR)
                                             # tenframe_img= cv2.resize(frameboximage[framenum-beforeframe][before_box][1], dsize=(300,300), fx=1, fy=1, interpolation=cv2.INTER_LINEAR)
+
+                                            # EXAMPLE
+                                            # TODO publish set in here
+                                            # coord = Pose2D()
+                                            # coord.x = x
+                                            # coord.y = y
+                                            # coord.theta = 0 # Do not change
+                                            # coord_pub.publish(coord)
+                                            send_coord = Pose2D()
+                                            send_coord.x = centercoord[framenum][now_box].x
+                                            send_coord.y = centercoord[framenum][now_box].y
+                                            send_coord.theta = 0
+                                            coord_pub.publish(send_coord)
                                             
                                             print("현재 frame 좌표: [", centercoord[framenum][now_box].x,",",centercoord[framenum][now_box].y,"]")
                                             print("이전 frame 좌표: [", centercoord[framenum-beforeframe][before_box].x,",",centercoord[framenum-beforeframe][before_box].y,"]")
@@ -687,11 +700,37 @@ def detect(save_img=False):
                                         # longframe_image= cv2.resize(frameboximage[longframe][many_box][1], dsize=(300,300), fx=1, fy=1, interpolation=cv2.INTER_LINEAR)
                                         
                                         if len(redhist[framenum])>len(redhist[framenum-beforeframe]):
+
+                                            # EXAMPLE
+                                            # TODO publish set in here
+                                            # coord = Pose2D()
+                                            # coord.x = x
+                                            # coord.y = y
+                                            # coord.theta = 0 # Do not change
+                                            # coord_pub.publish(coord)
+                                            send_coord = Pose2D()
+                                            send_coord.x = many_box_frame_coord_list[many_box].x
+                                            send_coord.y = many_box_frame_coord_list[many_box].y
+                                            send_coord.theta = 0
+                                            coord_pub.publish(send_coord)
+
                                             print("현재 frame 좌표: [", many_box_frame_coord_list[many_box].x,",",many_box_frame_coord_list[many_box].y,"]")
                                             print("이전 frame 좌표: [", less_box_frame_coord_list[less_box].x,",",less_box_frame_coord_list[less_box].y,"]")
                                             
-
                                         else:
+                                            # EXAMPLE
+                                            # TODO publish set in here
+                                            # coord = Pose2D()
+                                            # coord.x = x
+                                            # coord.y = y
+                                            # coord.theta = 0 # Do not change
+                                            # coord_pub.publish(coord)
+                                            send_coord = Pose2D()
+                                            send_coord.x = less_box_frame_coord_list[less_box].x
+                                            send_coord.y = less_box_frame_coord_list[less_box].y
+                                            send_coord.theta = 0
+                                            coord_pub.publish(send_coord)
+
                                             print("현재 frame 좌표: [", less_box_frame_coord_list[less_box].x,",",less_box_frame_coord_list[less_box].y,"]")
                                             print("이전 frame 좌표: [", many_box_frame_coord_list[many_box].x,",",many_box_frame_coord_list[many_box].y,"]")
                                         
@@ -901,7 +940,7 @@ def detect(save_img=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default=(str(pathlib.Path(__file__).parent.absolute()) + '/yolov7-tiny.pt'), help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default=(str(pathlib.Path(__file__).parent.absolute()) + '/my-tiny.pt'), help='model.pt path(s)')
     parser.add_argument('--source', type=str, default='0', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')

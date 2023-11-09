@@ -25,6 +25,7 @@ public:
     );
     ~DispMap();
 
+    cv::Point2d undistortPoint(const std::pair<uint32_t, uint32_t> coord);
     void initUndistored(const cv::Size left_img_size_, const cv::Size right_img_size_);
     void makingDisparityProcess(const cv::Mat& left_img_, const cv::Mat& right_img_);
 

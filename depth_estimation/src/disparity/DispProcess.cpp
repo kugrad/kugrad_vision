@@ -1,6 +1,7 @@
 #include "disparity/DispProcess.h"
 
 #include "depth_estimation/corner_infos.h"
+#include "geometry_msgs/Pose2D.h"
 
 #include <cv_bridge/cv_bridge.h>
 #include <boost/bind.hpp>
@@ -51,6 +52,7 @@ void DispProcess::windowMouseCallback(int event, int x, int y, int flag, void* p
 DispProcess::DispProcess()
     : 
     imgTrans(nh),
+    image_coordinate_sub(nh.subscribe("coordinate_from_image", 1000, &DispProcess::imageCoordCallback, this)),
 #if USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER
     left_image_sub(imgTrans, "stereo/left_image", 1),
     right_image_sub(imgTrans, "stereo/right_image", 1),
@@ -109,6 +111,23 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
         this->corner_info.clear();
     }
 // #endif
+}
+
+void DispProcess::imageCoordCallback(const geometry_msgs::Pose2D::ConstPtr& image_coord) {
+
+    // Point2d undis_cood = disp->undistortPoint({image_coord->x, image_coord->y});
+
+    fmt::print("chagne coord : {}, {}\n", image_coord->x, image_coord->y);
+
+    // double est_dist = ((disp->cameraFocalLength() * baseline) / disp->leftDisparityMap().at<short>(undis_cood.y, undis_cood.x)) * 100;
+    // est_dist = round(est_dist * 1000) / 1000.0;
+
+    // fmt::print(
+    //     "{}: {} cm\n",
+    //     fmt::format(fg(fmt::color::light_green), "Distance"),
+    //     est_dist
+    // );
+
 }
 
 const double DispProcess::calculateTheta() const {
