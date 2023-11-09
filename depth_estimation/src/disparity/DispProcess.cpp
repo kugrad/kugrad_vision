@@ -113,32 +113,65 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
 
 const double DispProcess::calculateTheta() const {
 
-    CORNER_INFO vec_1 = { 
+    typedef struct {
+        double x;
+        double y;
+        double z;
+    } Vector3D;
+
+    Vector3D a = {
         corner_info[1].x - corner_info[0].x,
         corner_info[1].y - corner_info[0].y,
         corner_info[1].distance - corner_info[0].distance
-     };
+    };
 
-    CORNER_INFO vec_2 = {
+    Vector3D b = {
         corner_info[2].x - corner_info[0].x,
         corner_info[2].y - corner_info[0].y,
         corner_info[2].distance - corner_info[0].distance
     };
 
-    double vec_1_dist_square_origin = pow(vec_1.x, 2) + pow(vec_1.y, 2);
-    double vec_2_dist_square_origin = pow(vec_2.x, 2) + pow(vec_2.y, 2);
+    Vector3D outer_product = {
+        a.y * b.z - a.z * b.y,  
+        a.z * b.x - a.x * b.z,  
+        a.x * b.y - a.y * b.x 
+    };
 
-    double vec_1_dist_square = vec_1_dist_square_origin + pow(vec_1.distance, 2);
-    double vec_2_dist_square = vec_2_dist_square_origin + pow(vec_2.distance, 2);
+    double len_outer_product =
+        sqrt(pow(outer_product.x, 2) + pow(outer_product.y, 2) + pow(outer_product.z, 2));
 
-    double inner_product_origin =  vec_1.x * vec_2.x + vec_1.y * vec_2.y;
-    double inner_product = inner_product_origin + vec_1.distance * vec_2.distance;
+    double cos_theta = (outer_product.x * 0 + outer_product.y * 0 + outer_product.z) / len_outer_product;
 
-    double area = (0.5) * sqrt(vec_1_dist_square * vec_2_dist_square - pow(inner_product, 2));
-    double area_origin =
-        (0.5) * sqrt(vec_1_dist_square_origin * vec_2_dist_square_origin - pow(inner_product_origin, 2));
+    return acos(cos_theta);
 
-    double theda_radian = acos(area_origin / area);
 
-    return theda_radian;
+    // CORNER_INFO vec_1 = { 
+    //     corner_info[1].x - corner_info[0].x,
+    //     corner_info[1].y - corner_info[0].y,
+    //     corner_info[1].distance - corner_info[0].distance
+    //  };
+
+    // CORNER_INFO vec_2 = {
+    //     corner_info[2].x - corner_info[0].x,
+    //     corner_info[2].y - corner_info[0].y,
+    //     corner_info[2].distance - corner_info[0].distance
+    // };
+
+
+    // double vec_1_dist_square_origin = pow(vec_1.x, 2) + pow(vec_1.y, 2);
+    // double vec_2_dist_square_origin = pow(vec_2.x, 2) + pow(vec_2.y, 2);
+
+    // double vec_1_dist_square = vec_1_dist_square_origin + pow(vec_1.distance, 2);
+    // double vec_2_dist_square = vec_2_dist_square_origin + pow(vec_2.distance, 2);
+
+    // double inner_product_origin =  vec_1.x * vec_2.x + vec_1.y * vec_2.y;
+    // double inner_product = inner_product_origin + vec_1.distance * vec_2.distance;
+
+    // double area = (0.5) * sqrt(vec_1_dist_square * vec_2_dist_square - pow(inner_product, 2));
+    // double area_origin =
+    //     (0.5) * sqrt(vec_1_dist_square_origin * vec_2_dist_square_origin - pow(inner_product_origin, 2));
+
+    // double theda_radian = acos(area_origin / area);
+
+    // return theda_radian;
 }
