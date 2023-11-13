@@ -65,6 +65,7 @@ private:
     ImageSubscriber left_image_sub;
     ImageSubscriber right_image_sub;
     // ros::Subscriber image_coordinate_sub;
+    ros::Publisher corner_coord_pub;
 
 #if EXACT_TIME_SYNC
     typedef message_filters::sync_policies::ExactTime<sensor_msgs::Image, sensor_msgs::Image> SyncPolicy;
