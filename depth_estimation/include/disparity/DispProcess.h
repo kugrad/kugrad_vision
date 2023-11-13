@@ -38,9 +38,9 @@ public:
         const sensor_msgs::ImageConstPtr& right_image_
     );
 
-    void imageCoordCallback(
-        const geometry_msgs::Pose2D::ConstPtr& image_coord
-    );
+    // void imageCoordCallback(
+    //     const geometry_msgs::Pose2D::ConstPtr& image_coord
+    // );
 
 private:
 
@@ -64,7 +64,7 @@ private:
 #endif /* USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER */
     ImageSubscriber left_image_sub;
     ImageSubscriber right_image_sub;
-    ros::Subscriber image_coordinate_sub;
+    // ros::Subscriber image_coordinate_sub;
 
 #if EXACT_TIME_SYNC
     typedef message_filters::sync_policies::ExactTime<sensor_msgs::Image, sensor_msgs::Image> SyncPolicy;

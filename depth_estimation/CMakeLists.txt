@@ -170,6 +170,12 @@ add_executable(disparity_node
   src/disparity/DispMap.cpp
 )
 
+add_executable(estCoord_node
+  src/coord_node.cpp
+
+  src/estimation_coord/estCoord.cpp
+)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -206,6 +212,12 @@ target_link_libraries(disparity_node PRIVATE
   ${OpenCV_LIBS}
   PkgConfig::yaml_cpp
   PkgConfig::jsoncpp
+  PkgConfig::fmt
+)
+
+target_link_libraries(estCoord_node PRIVATE
+  ${catkin_LIBRARIES}
+
   PkgConfig::fmt
 )
 
