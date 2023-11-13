@@ -144,7 +144,7 @@ def detect(save_img=False):
     detect_cnt=0
     
     #box 이미지 저장시 이름 변경 위한 변수
-    image_num=0;
+    image_num=0
 
     t0 = time.time()
 
@@ -391,7 +391,7 @@ def detect(save_img=False):
                         c_color_list.append(color_list)
 
             # Print time (inference + NMS)
-            print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
+            # print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
 
             """
             # -to do list- (해결)
@@ -429,9 +429,9 @@ def detect(save_img=False):
             # n번째 frame부터 비교 시작
             if framenum>=beforeframe:
                 if framenum%beforeframe==0:
-                    print()
-                    print("-----------------------------------------------------")
-                    print(framenum+1,"번째 frame")
+                    # print()
+                    # print("-----------------------------------------------------")
+                    # print(framenum+1,"번째 frame")
                     
                     # 각 frame에 감지한 box 개수가 같으면 실행
                     if len(redhist[framenum])==len(redhist[framenum-beforeframe]):
@@ -443,28 +443,28 @@ def detect(save_img=False):
                         #100, 119, 170, 202번째 frame에서 문제 발생
                         """
 
-                        print()
-                        print("감지한 box 개수: ", len(redhist[framenum]))
-                        print()
+                        # print()
+                        # print("감지한 box 개수: ", len(redhist[framenum]))
+                        # print()
                             
-                        print("이번 frame 히스토그램 개수: ", len(redhist[framenum]))
-                        print("전 frame 히스토그램 개수: ", len(redhist[framenum-beforeframe]))
+                        # print("이번 frame 히스토그램 개수: ", len(redhist[framenum]))
+                        # print("전 frame 히스토그램 개수: ", len(redhist[framenum-beforeframe]))
                         
                         # print("현재 frame box의 전체 이미지 중앙 좌표: ", centercoord[framenum])
                         # print("n번째 전 frame box의 전체 이미지 중앙 좌표: ", centercoord[framenum-beforeframe])
                         # print()
 
-                        print("이번 frame box 전체 좌표: ")
-                        for thisframecoord in centercoord[framenum]:
-                            print("[",thisframecoord.x,",",thisframecoord.y,"]")
+                        # print("이번 frame box 전체 좌표: ")
+                        # for thisframecoord in centercoord[framenum]:
+                        #     print("[",thisframecoord.x,",",thisframecoord.y,"]")
                         
-                        print()
+                        # print()
                         
-                        print("전 frame box 전체 좌표: ")
-                        for beforeframecoord in centercoord[framenum-beforeframe]:
-                            print("[",beforeframecoord.x,",",beforeframecoord.y,"]")
+                        # print("전 frame box 전체 좌표: ")
+                        # for beforeframecoord in centercoord[framenum-beforeframe]:
+                        #     print("[",beforeframecoord.x,",",beforeframecoord.y,"]")
                         
-                        print()
+                        # print()
                         
                         
                         # 두번째 frame에 있는 box마다 히스토그램 비교
@@ -540,11 +540,24 @@ def detect(save_img=False):
                                             # 사진 크기 크게 고정한 것
                                             # org_img= cv2.resize(frameboximage[framenum][now_box][1], dsize=(300,300), fx=1, fy=1, interpolation=cv2.INTER_LINEAR)
                                             # tenframe_img= cv2.resize(frameboximage[framenum-beforeframe][before_box][1], dsize=(300,300), fx=1, fy=1, interpolation=cv2.INTER_LINEAR)
+
+                                            # EXAMPLE
+                                            # TODO publish set in here
+                                            # coord = Pose2D()
+                                            # coord.x = x
+                                            # coord.y = y
+                                            # coord.theta = 0 # Do not change
+                                            # coord_pub.publish(coord)
+                                            send_coord = Pose2D()
+                                            send_coord.x = centercoord[framenum][now_box].x
+                                            send_coord.y = centercoord[framenum][now_box].y
+                                            send_coord.theta = 0
+                                            coord_pub.publish(send_coord)
                                             
-                                            print("현재 frame 좌표: [", centercoord[framenum][now_box].x,",",centercoord[framenum][now_box].y,"]")
-                                            print("이전 frame 좌표: [", centercoord[framenum-beforeframe][before_box].x,",",centercoord[framenum-beforeframe][before_box].y,"]")
+                                            # print("현재 frame 좌표: [", centercoord[framenum][now_box].x,",",centercoord[framenum][now_box].y,"]")
+                                            # print("이전 frame 좌표: [", centercoord[framenum-beforeframe][before_box].x,",",centercoord[framenum-beforeframe][before_box].y,"]")
                                             
-                                            detect_cnt=detect_cnt+1;
+                                            detect_cnt=detect_cnt+1
                                             
                                             org_img=frameboximage[framenum][now_box][1]
                                             tenframe_img=frameboximage[framenum-beforeframe][before_box][1]
@@ -570,7 +583,7 @@ def detect(save_img=False):
                                 centercoord[framenum-beforeframe][inx].x=-1*centercoord[framenum-beforeframe][inx].x
                             
                     else:
-                        print("\n히스토그램 개수 다름!!!!!!!!!!!!!!!\n") 
+                        # print("\n히스토그램 개수 다름!!!!!!!!!!!!!!!\n") 
                         
                         # 개수 많은 박스 개수 저장 변수
                         longhistlen=0
@@ -587,13 +600,13 @@ def detect(save_img=False):
                         shortframe=0
                         
                         if len(redhist[framenum])>len(redhist[framenum-beforeframe]):
-                            print("새로운 box 생성됨.\n")
+                            # print("새로운 box 생성됨.\n")
                             
                             longframe=framenum
                             shortframe=framenum-beforeframe
 
                         else:
-                            print("box 사라짐.\n")
+                            # print("box 사라짐.\n")
                             
                             longframe=framenum-beforeframe
                             shortframe=framenum
@@ -604,21 +617,21 @@ def detect(save_img=False):
                         many_box_frame_coord_list=centercoord[longframe]
                         less_box_frame_coord_list=centercoord[shortframe]
                         
-                        print("이번 frame 히스토그램 개수: ", len(redhist[framenum]))
-                        print("전 frame 히스토그램 개수: ", len(redhist[framenum-beforeframe]))
-                        print()
+                        # print("이번 frame 히스토그램 개수: ", len(redhist[framenum]))
+                        # print("전 frame 히스토그램 개수: ", len(redhist[framenum-beforeframe]))
+                        # print()
                         
-                        print("이번 frame box 전체 좌표: ")
-                        for thisframecoord in centercoord[framenum]:
-                            print("[",thisframecoord.x,",",thisframecoord.y,"]")
+                        # print("이번 frame box 전체 좌표: ")
+                        # for thisframecoord in centercoord[framenum]:
+                        #     print("[",thisframecoord.x,",",thisframecoord.y,"]")
                         
-                        print()
+                        # print()
                         
-                        print("전 frame box 전체 좌표: ")
-                        for beforeframecoord in centercoord[framenum-beforeframe]:
-                            print("[",beforeframecoord.x,",",beforeframecoord.y,"]")
+                        # print("전 frame box 전체 좌표: ")
+                        # for beforeframecoord in centercoord[framenum-beforeframe]:
+                        #     print("[",beforeframecoord.x,",",beforeframecoord.y,"]")
                         
-                        print()
+                        # print()
                         
                         """
                         # for temp1 in frameboximage[framenum]:
@@ -687,15 +700,41 @@ def detect(save_img=False):
                                         # longframe_image= cv2.resize(frameboximage[longframe][many_box][1], dsize=(300,300), fx=1, fy=1, interpolation=cv2.INTER_LINEAR)
                                         
                                         if len(redhist[framenum])>len(redhist[framenum-beforeframe]):
-                                            print("현재 frame 좌표: [", many_box_frame_coord_list[many_box].x,",",many_box_frame_coord_list[many_box].y,"]")
-                                            print("이전 frame 좌표: [", less_box_frame_coord_list[less_box].x,",",less_box_frame_coord_list[less_box].y,"]")
-                                            
 
+                                            # EXAMPLE
+                                            # TODO publish set in here
+                                            # coord = Pose2D()
+                                            # coord.x = x
+                                            # coord.y = y
+                                            # coord.theta = 0 # Do not change
+                                            # coord_pub.publish(coord)
+                                            send_coord = Pose2D()
+                                            send_coord.x = many_box_frame_coord_list[many_box].x
+                                            send_coord.y = many_box_frame_coord_list[many_box].y
+                                            send_coord.theta = 0
+                                            coord_pub.publish(send_coord)
+
+                                            # print("현재 frame 좌표: [", many_box_frame_coord_list[many_box].x,",",many_box_frame_coord_list[many_box].y,"]")
+                                            # print("이전 frame 좌표: [", less_box_frame_coord_list[less_box].x,",",less_box_frame_coord_list[less_box].y,"]")
+                                            
                                         else:
-                                            print("현재 frame 좌표: [", less_box_frame_coord_list[less_box].x,",",less_box_frame_coord_list[less_box].y,"]")
-                                            print("이전 frame 좌표: [", many_box_frame_coord_list[many_box].x,",",many_box_frame_coord_list[many_box].y,"]")
+                                            # EXAMPLE
+                                            # TODO publish set in here
+                                            # coord = Pose2D()
+                                            # coord.x = x
+                                            # coord.y = y
+                                            # coord.theta = 0 # Do not change
+                                            # coord_pub.publish(coord)
+                                            send_coord = Pose2D()
+                                            send_coord.x = less_box_frame_coord_list[less_box].x
+                                            send_coord.y = less_box_frame_coord_list[less_box].y
+                                            send_coord.theta = 0
+                                            coord_pub.publish(send_coord)
+
+                                            # print("현재 frame 좌표: [", less_box_frame_coord_list[less_box].x,",",less_box_frame_coord_list[less_box].y,"]")
+                                            # print("이전 frame 좌표: [", many_box_frame_coord_list[many_box].x,",",many_box_frame_coord_list[many_box].y,"]")
                                         
-                                        detect_cnt=detect_cnt+1;
+                                        detect_cnt=detect_cnt+1
                                         
                                         shortframe_image=frameboximage[shortframe][less_box][1]
                                         longframe_image=frameboximage[longframe][many_box][1]
@@ -769,7 +808,7 @@ def detect(save_img=False):
                         """
                             
                             
-                    print("-----------------------------------------------------")
+                    # print("-----------------------------------------------------")
             
             framenum=framenum+1
             color_cnt=color_cnt-1
@@ -783,7 +822,7 @@ def detect(save_img=False):
             if save_img:
                 if dataset.mode == 'image':
                     cv2.imwrite(save_path, im0)
-                    print(f" The image with the result is saved in: {save_path}")
+                    # print(f" The image with the result is saved in: {save_path}")
                 else:  # 'video' or 'stream'
                     if vid_path != save_path:  # new video
                         vid_path = save_path
@@ -813,12 +852,12 @@ def detect(save_img=False):
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
         #print(f"Results saved to {save_dir}{s}")
 
-    print(f'Done. ({time.time() - t0:.3f}s)')
+    # print(f'Done. ({time.time() - t0:.3f}s)')
     
     # 전체 히스토그램 개수 출력
-    print()
-    print("전체 히스토그램 개수: " , cnt)
-    print("= 탐지된 box 개수\n")
+    # print()
+    # print("전체 히스토그램 개수: " , cnt)
+    # print("= 탐지된 box 개수\n")
     
     """
     # 전체 히스토그램 개수 맞는지 확인 위한 값. 
@@ -865,20 +904,20 @@ def detect(save_img=False):
     
     # frame 개수 출력 
     # = frame 당 각 box에 히스토그램 저장된 리스트 저장되었는지 확인 
-    print("red 히스토그램 개수: ", len(redhist))
-    print("blue 히스토그램 개수: ",len(bluehist))
-    print("green 히스토그램 개수: ",len(greenhist))
-    print("= 전체 frame 개수\n")
+    # print("red 히스토그램 개수: ", len(redhist))
+    # print("blue 히스토그램 개수: ",len(bluehist))
+    # print("green 히스토그램 개수: ",len(greenhist))
+    # print("= 전체 frame 개수\n")
     
     # 전체 히스토그램 개수 맞는지 확인
     testcnt=0
     for histlist in redhist:
         testcnt=testcnt+len(histlist)
     
-    print("전체 히스토그램 개수: ",testcnt)
+    # print("전체 히스토그램 개수: ",testcnt)
     
     # 각 frame에 리스트 저장 되었는지 확인
-    print("frame마다 저장된 x,y 좌표 리스트 개수: ", len(centercoord))
+    # print("frame마다 저장된 x,y 좌표 리스트 개수: ", len(centercoord))
     
     # 전체 x, y 좌표 개수 확인
     testcnt2=0
@@ -893,15 +932,15 @@ def detect(save_img=False):
     # coord.theta = 0 # Do not change
     # coord_pub.publish(coord)
     
-    print("전체 x,y 좌표 개수: ", testcnt2)
-    print()
+    # print("전체 x,y 좌표 개수: ", testcnt2)
+    # print()
     
-    print("change detect된 횟수: ",detect_cnt)
+    # print("change detect된 횟수: ",detect_cnt)
     
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default=(str(pathlib.Path(__file__).parent.absolute()) + '/yolov7-tiny.pt'), help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default=(str(pathlib.Path(__file__).parent.absolute()) + '/my-tiny.pt'), help='model.pt path(s)')
     parser.add_argument('--source', type=str, default='0', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')

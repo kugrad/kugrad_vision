@@ -70,6 +70,17 @@ DispMap::~DispMap() {
     right_stereo_map.second.release();
 }
 
+Point2d DispMap::undistortPoint(const std::pair<uint32_t, uint32_t> coord) {
+    // Mat coord_mat()
+    // Point2d coord_arr(coord.first, coord.second);
+    // Mat coord_mat = (Mat_<int>(2, 1) << coord.first, coord.se
+    Mat coord_mat = (Mat_<int>(1, 2) << coord.first, coord.second);
+    Mat coord_mat_after;
+    undistortPoints(coord_mat, coord_mat_after, cam_l, dist_coeff_l);
+
+    return Point2d(coord_mat_after.at<uint32_t>(0, 0), coord_mat_after.at<uint32_t>(0, 1));
+}
+
 void DispMap::initUndistored(const cv::Size left_img_size_, const cv::Size right_img_size_) {
 
     initUndistortRectifyMap(

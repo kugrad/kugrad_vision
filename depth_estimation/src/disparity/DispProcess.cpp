@@ -1,6 +1,7 @@
 #include "disparity/DispProcess.h"
 
 #include "depth_estimation/corner_infos.h"
+#include "geometry_msgs/Pose2D.h"
 
 #include <cv_bridge/cv_bridge.h>
 #include <boost/bind.hpp>
@@ -32,7 +33,7 @@ void DispProcess::windowMouseCallback(int event, int x, int y, int flag, void* p
             est_dist
         );
 
-        if (corner_info_->size() < 3) {
+        if (corner_info_->size() < 4) {
             CORNER_INFO info = { (uint32_t) x, (uint32_t) y, est_dist };
             corner_info_->push_back(info);
             fmt::print(
@@ -43,6 +44,17 @@ void DispProcess::windowMouseCallback(int event, int x, int y, int flag, void* p
             }
             fmt::print("\n");
         }
+        // if (corner_info_->size() < 3) {
+        //     CORNER_INFO info = { (uint32_t) x, (uint32_t) y, est_dist };
+        //     corner_info_->push_back(info);
+        //     fmt::print(
+        //         "{}: ", fmt::format(fg(fmt::color::light_blue), "corner coordinate")
+        //     );
+        //     for (const auto it : *corner_info_) {
+        //         fmt ::print("[ {}, {}, {} ] ", it.x, it.y, it.distance);
+        //     }
+        //     fmt::print("\n");
+        // }
 
     }
 
@@ -51,6 +63,8 @@ void DispProcess::windowMouseCallback(int event, int x, int y, int flag, void* p
 DispProcess::DispProcess()
     : 
     imgTrans(nh),
+    // image_coordinate_sub(nh.subscribe("coordinate_from_image", 1000, &DispProcess::imageCoordCallback, this)),
+    corner_coord_pub(nh.advertise<depth_estimation::corner_infos>("index_map_image", 10)),
 #if USE_IMAGE_TRANSPORT_SUBSCRIBER_FILTER
     left_image_sub(imgTrans, "stereo/left_image", 1),
     right_image_sub(imgTrans, "stereo/right_image", 1),
@@ -95,21 +109,49 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
 // #if SHOW_IMAGE
     char key = waitKey(1); // To display imshow
     if (key == 'c' || key == 'C') { // check
-        if (this->corner_info.size() == 3) {
-            // TODO get the theta of camera frame and load
-            double theta = calculateTheta();
-            double degree = theta * (180.0 / 3.141592);
-            // if (degree < 45.0) {
-            //     degree = 90 - degree;
-            // }
-            fmt::print("degree: {}\n", degree);
+        if (corner_info.size() == 4) {
+            depth_estimation::corner_infos infos;
+            for (int i = 0; i < corner_info.size(); i++) {
+                infos.depth_corners.at(i).x = corner_info[i].x;
+                infos.depth_corners.at(i).y = corner_info[i].y;
+                infos.depth_corners.at(i).distance = corner_info[i].distance;
+            }
+            corner_coord_pub.publish(infos); 
         }
+        // if (this->corner_info.size() == 3) {
+        //     // TODO get the theta of camera frame and load
+        //     double theta = calculateTheta();
+        //     double degree = theta * (180.0 / 3.141592);
+        //     // if (degree < 45.0) {
+        //     //     degree = 90 - degree;
+        //     // }
+        //     fmt::print("degree: {}\n", degree);
+        // }
     } else if (key == 'r' || key == 'R') { // reset
         fmt::print("{} corner coordinate\n", fmt::format(fg(fmt::color::pink), "RESET"));
         this->corner_info.clear();
+        depth_estimation::corner_info infos;
+        corner_coord_pub.publish(infos);
     }
 // #endif
 }
+
+// void DispProcess::imageCoordCallback(const geometry_msgs::Pose2D::ConstPtr& image_coord) {
+
+//     // Point2d undis_cood = disp->undistortPoint({image_coord->x, image_coord->y});
+
+//     fmt::print("chagne coord : {}, {}\n", image_coord->x, image_coord->y);
+
+//     // double est_dist = ((disp->cameraFocalLength() * baseline) / disp->leftDisparityMap().at<short>(undis_cood.y, undis_cood.x)) * 100;
+//     // est_dist = round(est_dist * 1000) / 1000.0;
+
+//     // fmt::print(
+//     //     "{}: {} cm\n",
+//     //     fmt::format(fg(fmt::color::light_green), "Distance"),
+//     //     est_dist
+//     // );
+
+// }
 
 const double DispProcess::calculateTheta() const {
 
