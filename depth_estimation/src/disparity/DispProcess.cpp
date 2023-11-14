@@ -34,7 +34,7 @@ void DispProcess::windowMouseCallback(int event, int x, int y, int flag, void* p
         );
 
         if (corner_info_->size() < 4) {
-            CORNER_INFO info = { (uint32_t) x, (uint32_t) y, est_dist };
+            CORNER_INFO info = { (int32_t) x, (int32_t) y, est_dist };
             corner_info_->push_back(info);
             fmt::print(
                 "{}: ", fmt::format(fg(fmt::color::light_blue), "corner coordinate")

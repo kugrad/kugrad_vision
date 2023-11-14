@@ -35,7 +35,7 @@ private:
     std::mutex image_coord_mx;
 
     bool corner_idx_is_set;
-    cv::Mat T_change_coord;
+    cv::Mat transformation_matrix;
 
     const double idx_x_len = 100.0f;
     const double idx_y_len = 100.0f;

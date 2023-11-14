@@ -963,7 +963,7 @@ if __name__ == '__main__':
     #check_requirements(exclude=('pycocotools', 'thop'))
 
     rospy.init_node('detect_yolov7', anonymous=True)
-    coord_pub = rospy.Publisher("coordinate_from_image", Pose2D, queue_size=10)
+    coord_pub = rospy.Publisher("changed_coordinate_from_image", Pose2D, queue_size=10)
 
     with torch.no_grad():
         if opt.update:  # update all models (to fix SourceChangeWarning)

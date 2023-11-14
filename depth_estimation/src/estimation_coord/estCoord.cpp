@@ -19,13 +19,16 @@
 //     double m21, m22;
 // } Matrix2x2;
 
+using namespace cv;
+
 EstimationCoord::EstimationCoord()
     :
     config_fs(std::make_shared<ReadStereoFS>(CONFIG_DIR_PATH "calib_storage.yaml")),
     index_map_coord_sub(nh.subscribe("index_map_image", 10, &EstimationCoord::indexMapCoordCallback, this)),
     change_obj_image_coord_sub(nh.subscribe("changed_coordinate_from_image", 100, &EstimationCoord::imageCoordCallback, this)),
     corner_idx_is_set(false)
-{  }
+{ 
+}
 
 EstimationCoord::~EstimationCoord()
 {  }
@@ -52,13 +55,8 @@ void EstimationCoord::indexMapCoordCallback(
         }
     );
 
-    // for (const auto it : corners) {
-    //     std::cout << it.x << ", " << it.y << "\n";
-    // }
-
     depth_estimation::corner_info left_up, left_down, right_up, right_down;
 
-    // corner_map_coord_mx.lock(); 
     if (corners.at(0).y < corners.at(1).y) {
         left_down = corners.at(1);
         left_up = corners.at(0);
@@ -74,48 +72,23 @@ void EstimationCoord::indexMapCoordCallback(
         right_down = corners.at(2);
         right_up = corners.at(3);
     }
-    // corner_idx_is_set = true;
-    // corner_map_coord_mx.unlock(); 
 
-    alert::info_message(
-        fmt::format(
-            "({}, {}), ({}, {}), ({}, {}), ({}, {})",
-            left_down.x, left_down.y,
-            left_up.x, left_up.y,
-            right_down.x, right_down.y,
-            right_up.x, right_up.y
-        ).c_str()
-        // "{%d, %d}, {%d, %d}, {%d, %d}, {%d, %d}\n",
-        // left_down.x, left_down.y,
-        // left_up.x, left_up.y,
-        // right_down.x, right_down.y,
-        // right_up.x, right_up.y
-    );
+    std::vector<Point2f> src_corners;
+    src_corners.push_back(Point2f(left_down.x, left_down.y));
+    src_corners.push_back(Point2f(left_up.x, left_up.y));
+    src_corners.push_back(Point2f(right_down.x, right_down.y));
+    src_corners.push_back(Point2f(right_up.x, right_up.y));
 
-    // Vector2D
-    std::pair<uint32_t, uint32_t> xaxis = { right_down.x - left_down.x, right_down.y - left_down.y };
-    std::pair<uint32_t, uint32_t> yaxis = { left_up.x - left_down.x, left_up.y - left_down.y };
-
-    // cv::Mat T(2, 2, CV_32F) ;
-    // T << xaxis.first, yaxis.first, xaxis.second, yaxis.second;
-    // cv::Mat T = cv::Mat(2, 2, CV_32F) << xaxis.first, yaxis.fir
-    cv::Mat T = (cv::Mat_<double>(2, 2) << xaxis.first, yaxis.first, xaxis.second, yaxis.second);
-
-    if (cv::determinant(T) == 0) {
-        alert::info_message("no determinent matrix based on corner idx matrix\n");
-        return;
-    }
-
-    double candi_x_len = sqrt(pow(xaxis.first, 2) + pow(xaxis.second, 2));
-    double candi_y_len = sqrt(pow(yaxis.first, 2) + pow(yaxis.second, 2));
+    std::vector<Point2f> dst_corners;
+    dst_corners.push_back(Point2f(0.0f, 0.0f));
+    dst_corners.push_back(Point2f(0.0f, idx_y_len));
+    dst_corners.push_back(Point2f(idx_x_len, 0.0f));
+    dst_corners.push_back(Point2f(idx_x_len, idx_y_len));
 
     corner_map_coord_mx.lock();
-    T_change_coord = T.inv();
-    scaling_factor_X = (idx_x_len) / (candi_x_len);
-    scaling_factor_Y = (idx_y_len) / (candi_y_len);
+    transformation_matrix = getPerspectiveTransform(src_corners, dst_corners);
     corner_idx_is_set = true;
     corner_map_coord_mx.unlock();
-
 }
 
 void EstimationCoord::imageCoordCallback(
@@ -129,20 +102,19 @@ void EstimationCoord::imageCoordCallback(
     if (!is_pass)
         return;
 
-    cv::Point2f d_point(image_coord->x, image_coord->y);
-    std::vector<cv::Point2f> d_points({ d_point });
-    std::vector<cv::Point2f> ud_points;
-    cv::undistortPoints(d_points, ud_points, config_fs->cameraMat_left(), config_fs->distCoeff_left());
+    std::vector<Point2f> d_points({ Point2f(image_coord->x, image_coord->y) });
+    std::vector<Point2f> ud_points;
+    cv::undistortPoints(d_points, ud_points,
+        config_fs->cameraMat_left(),
+        config_fs->distCoeff_left(),
+        config_fs->rectifyMat_left(),
+        config_fs->projectionMat_left()
+    );
 
-    cv::Mat point = (cv::Mat_<double>(2, 1) << ud_points[0].x, ud_points[0].y);
+    std::vector<Point2f> transfomed_points;
+    perspectiveTransform(ud_points, transfomed_points, transformation_matrix); 
 
-    cv::Mat transformed = T_change_coord * point;
+    Point2f& pt = transfomed_points[0];
 
-    auto x_coord = transformed.at<double>(0, 0);
-    auto y_coord = transformed.at<double>(1, 0);
-
-    x_coord *= scaling_factor_X;
-    y_coord *= scaling_factor_Y;
-
-    alert::info_message( "Axis - ( %lf ,%lf )\n", x_coord, y_coord );
+    alert::info_message( "Axis - ( %lf ,%lf )\n", pt.x, pt.y);
 }
