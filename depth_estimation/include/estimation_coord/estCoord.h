@@ -5,6 +5,9 @@
 
 #include <geometry_msgs/Pose2D.h>
 #include "depth_estimation/corner_infos.h"
+#include "disparity/ReadStereoFS.h"
+
+#include <opencv2/core/mat.hpp>
 
 #include <mutex>
 
@@ -31,8 +34,16 @@ private:
     std::mutex corner_map_coord_mx;
     std::mutex image_coord_mx;
 
-    geometry_msgs::Pose2D::Ptr changed_coord;
-    depth_estimation::corner_info left_up, left_down, right_up, right_down;
+    bool corner_idx_is_set;
+    cv::Mat T_change_coord;
+
+    const double idx_x_len = 100.0f;
+    const double idx_y_len = 100.0f;
+    double scaling_factor_X, scaling_factor_Y;
+
+    std::shared_ptr<ReadStereoFS> config_fs;
+    // depth_estimation::corner_info left_up, left_down, right_up, right_down;
+    // geometry_msgs::Pose2D::Ptr changed_coord;
 };
 
 #endif

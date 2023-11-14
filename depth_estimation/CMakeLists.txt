@@ -174,6 +174,7 @@ add_executable(estCoord_node
   src/coord_node.cpp
 
   src/estimation_coord/estCoord.cpp
+  src/disparity/ReadStereoFS.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -218,6 +219,7 @@ target_link_libraries(disparity_node PRIVATE
 target_link_libraries(estCoord_node PRIVATE
   ${catkin_LIBRARIES}
 
+  ${OpenCV_LIBS}
   PkgConfig::fmt
 )
 
