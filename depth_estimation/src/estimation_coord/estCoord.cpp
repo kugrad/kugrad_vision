@@ -112,7 +112,9 @@ void EstimationCoord::imageCoordCallback(
     );
 
     std::vector<Point2f> transfomed_points;
+    corner_map_coord_mx.try_lock();
     perspectiveTransform(ud_points, transfomed_points, transformation_matrix); 
+    corner_map_coord_mx.unlock();
 
     Point2f& pt = transfomed_points[0];
 
