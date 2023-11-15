@@ -193,15 +193,15 @@ void StereoCalib::stereoCalibrationProcessCallback(const sensor_msgs::ImageConst
 
     }
 
-#if SHOW_IMAGE
+// #if SHOW_IMAGE
     imshow("image_left", left_image_gray);
     imshow("image_right", right_image_gray);
-#endif
+// #endif
 
     // cv::imshow("left_image", left_image);
     // cv::imshow("right_image", right_image);
 
-#if SHOW_IMAGE
+// #if SHOW_IMAGE
     waitKey(1);
-#endif
+// #endif
 }
