@@ -2,5 +2,5 @@
     <node pkg="stereo_stream" type="stereo_stream_node" name="stream_stereo_cam" />
     <node pkg="depth_estimation" type="disparity_node" name="generate_disparity" output="screen" />
     <node pkg="depth_estimation" type="estCoord_node" name="coord_estimation" output="screen" />
-    <node pkg="detection_yolo7" type="detect.py" name="detection" output="screen" />
+    <!-- <node pkg="detection_yolo7" type="detect.py" name="detection" output="screen" /> -->
 </launch>

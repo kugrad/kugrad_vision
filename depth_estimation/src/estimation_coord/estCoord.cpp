@@ -9,6 +9,8 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 
+#include <std_msgs/String.h>
+
 // typedef struct {
 //     double x;
 //     double y;
@@ -26,8 +28,25 @@ EstimationCoord::EstimationCoord()
     config_fs(std::make_shared<ReadStereoFS>(CONFIG_DIR_PATH "calib_storage.yaml")),
     index_map_coord_sub(nh.subscribe("index_map_image", 10, &EstimationCoord::indexMapCoordCallback, this)),
     change_obj_image_coord_sub(nh.subscribe("changed_coordinate_from_image", 100, &EstimationCoord::imageCoordCallback, this)),
+    ab_coord_pub(nh.advertise<std_msgs::String>("absolute_coord", 100)),
     corner_idx_is_set(false)
 { 
+
+    double x, y, z;
+    x = y = z = 0;
+
+    ros::Rate rate(1);
+    while (ros::ok()) {
+        x += 0.01;
+        y += 0.03;
+        z += 0.002;
+        std_msgs::String coord_str;
+        coord_str.data = fmt::format("[{}, {}, {}]", x, y, z);
+        ab_coord_pub.publish(coord_str);
+
+        rate.sleep();
+    }
+
 }
 
 EstimationCoord::~EstimationCoord()
@@ -118,5 +137,8 @@ void EstimationCoord::imageCoordCallback(
 
     Point2f& pt = transfomed_points[0];
 
-    alert::info_message( "Axis - ( %lf ,%lf )\n", pt.x, pt.y);
+    // alert::info_message( "Axis - ( %lf ,%lf )\n", pt.x, pt.y);
+    std_msgs::String coord_str;
+    coord_str.data = fmt::format("[{}, {}, {}]", pt.x, pt.y, 1);
+    ab_coord_pub.publish(coord_str);
 }
