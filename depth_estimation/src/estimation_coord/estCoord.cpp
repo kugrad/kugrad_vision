@@ -32,20 +32,20 @@ EstimationCoord::EstimationCoord()
     corner_idx_is_set(false)
 { 
 
-    double x, y, z;
-    x = y = z = 0;
+    // double x, y, z;
+    // x = y = z = 0;
 
-    ros::Rate rate(1);
-    while (ros::ok()) {
-        x += 0.01;
-        y += 0.03;
-        z += 0.002;
-        std_msgs::String coord_str;
-        coord_str.data = fmt::format("[{}, {}, {}]", x, y, z);
-        ab_coord_pub.publish(coord_str);
+    // ros::Rate rate(1);
+    // while (ros::ok()) {
+    //     x += 0.01;
+    //     y += 0.03;
+    //     z += 0.002;
+    //     std_msgs::String coord_str;
+    //     coord_str.data = fmt::format("[{}, {}, {}]", x, y, z);
+    //     ab_coord_pub.publish(coord_str);
 
-        rate.sleep();
-    }
+    //     rate.sleep();
+    // }
 
 }
 
@@ -137,7 +137,7 @@ void EstimationCoord::imageCoordCallback(
 
     Point2f& pt = transfomed_points[0];
 
-    // alert::info_message( "Axis - ( %lf ,%lf )\n", pt.x, pt.y);
+    alert::info_message( "Axis - ( %lf ,%lf )\n", pt.x, pt.y);
     std_msgs::String coord_str;
     coord_str.data = fmt::format("[{}, {}, {}]", pt.x, pt.y, 1);
     ab_coord_pub.publish(coord_str);
