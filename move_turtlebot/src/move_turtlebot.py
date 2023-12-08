@@ -38,10 +38,10 @@ class navigation_turtlebot(object):
             rospy.sleep(10)
             # self.publish_goal_to_system()
 
-    def msg2json(self, msg):
-        ''' Convert a ROS message to JSON format'''
-        y = yaml.load(str(msg))
-        return json.dumps(y,indent=4)
+    # def msg2json(self, msg):
+    #     ''' Convert a ROS message to JSON format'''
+    #     y = yaml.load(str(msg))
+    #     return json.dumps(y,indent=4)
     
     # message_filters
     def subscribe_goal_from_system_publish_goal_to_bot(self, status_msg, goal_msg):
