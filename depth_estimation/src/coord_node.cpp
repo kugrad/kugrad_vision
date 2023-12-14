@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
 
     ros::init(argc, argv, "coord_estmation_node");
 
-    EstimationCoord();
+    EstimationCoord est;
 
     ros::spin();
 

@@ -62,7 +62,7 @@ private:
     static constexpr int window_block_size = 3;
     static constexpr int min_disparity = 16 * 0;
     // constexpr static int num_disparity = 16 * 5 - mindisparity; 
-    static constexpr int num_disparity = 16 * 6;
+    static constexpr int num_disparity = 16 * 5;
     static constexpr int P1 = 8 * window_block_size * window_block_size * smoothing_factor;
     static constexpr int P2 = 32 * window_block_size * window_block_size * smoothing_factor;
     // constexpr static int disp12MaxDiff = 5;

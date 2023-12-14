@@ -34,7 +34,7 @@ void DispProcess::windowMouseCallback(int event, int x, int y, int flag, void* p
         );
 
         if (corner_info_->size() < 4) {
-            CORNER_INFO info = { (uint32_t) x, (uint32_t) y, est_dist };
+            CORNER_INFO info = { (int32_t) x, (int32_t) y, est_dist };
             corner_info_->push_back(info);
             fmt::print(
                 "{}: ", fmt::format(fg(fmt::color::light_blue), "corner coordinate")
@@ -117,6 +117,7 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
                 infos.depth_corners.at(i).distance = corner_info[i].distance;
             }
             corner_coord_pub.publish(infos); 
+            ROS_INFO("corner_coord published");
         }
         // if (this->corner_info.size() == 3) {
         //     // TODO get the theta of camera frame and load
@@ -130,8 +131,9 @@ void DispProcess::processCallback(const sensor_msgs::ImageConstPtr& left_image_,
     } else if (key == 'r' || key == 'R') { // reset
         fmt::print("{} corner coordinate\n", fmt::format(fg(fmt::color::pink), "RESET"));
         this->corner_info.clear();
-        depth_estimation::corner_info infos;
+        depth_estimation::corner_infos infos;
         corner_coord_pub.publish(infos);
+        ROS_INFO("corner_coord reseted");
     }
 // #endif
 }
